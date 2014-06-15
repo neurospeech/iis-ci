@@ -1,0 +1,8 @@
+IISCI.Web/obj/*
+IISCI.Web/bin/*
+TFSRestAPI/obj/*
+TFSRestAPI/bin/*
+TFSRestAPIConsole/obj/*
+TFSRestAPIConsole/bin/*
+packages/*
+*.suo
