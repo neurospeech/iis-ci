@@ -8,7 +8,7 @@ using TFSRestAPI;
 
 namespace IISCI.Web.Controllers
 {
-    public class TFSController : Controller
+    public class TFSController : AppController
     {
 
         TFS2012Client client = null;
@@ -17,7 +17,9 @@ namespace IISCI.Web.Controllers
         {
             base.Initialize(requestContext);
 
-            client = new TFS2012Client("", "", "", "");
+            TFSPull pull = Site.LoadConfig<TFSPull>();
+
+            client = new TFS2012Client(pull.Domain, pull.Username, pull.Password, pull.Host,pull.Secure,pull.Port);
         }
 
         protected override void Dispose(bool disposing)
@@ -36,5 +38,35 @@ namespace IISCI.Web.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult Settings() { 
+            return Json(Site.LoadConfig<TFSPull>(), JsonRequestBehavior.AllowGet );
+        }
+
+        public ActionResult SaveSettings(TFSPull pull)
+        {
+            Site.SaveConfig(pull);
+            return Json("Ok");
+        }
+
+    }
+
+    public class TFSPull {
+
+        public TFSPull()
+        {
+            Port = 443;
+            Secure = true;
+        }
+
+        public string Domain { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string Host { get; set; }
+        public int Port { get; set; }
+        public bool Secure { get; set; }
+        public string Collection { get; set; }
+        public string Project { get; set; }
+        public string Path { get; set; }
+        public bool Build { get; set; }
     }
 }
