@@ -1,0 +1,20 @@
+﻿@{
+    Html.Register(IISCI.Web.AppResources.AtomsScript);
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+
+@Html.RenderResources()
+
+</head>
+<body>
+    <div atom-type="AtomApplication" atom-render-as-page="true">
+        @RenderBody()
+    </div>
+</body>
+</html>

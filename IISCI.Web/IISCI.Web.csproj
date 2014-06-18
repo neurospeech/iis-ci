@@ -112,11 +112,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppResources.cs" />
     <Compile Include="Controllers\AppController.cs" />
     <Compile Include="Controllers\TFSController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\HtmlResources.cs" />
     <Compile Include="Models\IISCISite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -126,6 +128,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Content Include="Global.asax" />
     <None Include="Scripts\jquery-1.11.1.intellisense.js" />
+    <Content Include="Scripts\app.js" />
     <Content Include="Scripts\atoms-debug.js" />
     <Content Include="Scripts\atoms.min.js" />
     <Content Include="Scripts\jquery-1.11.1.js" />
@@ -144,6 +147,9 @@
     </Content>
     <Content Include="Views\Web.config" />
     <Content Include="Scripts\jquery-1.11.1.min.map" />
+    <Content Include="Views\App\Index.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\_ViewStart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -173,7 +179,7 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>18767</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:1902/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>

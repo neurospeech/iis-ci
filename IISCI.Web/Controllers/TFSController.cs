@@ -13,6 +13,8 @@ namespace IISCI.Web.Controllers
 
         TFS2012Client client = null;
 
+        IISCI.Web.Models.IISCISite Site;
+
         protected override void Initialize(System.Web.Routing.RequestContext requestContext)
         {
             base.Initialize(requestContext);
@@ -57,6 +59,8 @@ namespace IISCI.Web.Controllers
             Port = 443;
             Secure = true;
         }
+
+        
 
         public string Domain { get; set; }
         public string Username { get; set; }

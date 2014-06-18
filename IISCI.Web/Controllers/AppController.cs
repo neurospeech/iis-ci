@@ -8,44 +8,53 @@ using System.Web.Mvc;
 
 namespace IISCI.Web.Controllers
 {
-    public abstract class AppController : Controller
+    public class AppController : Controller
     {
 
-        private static Dictionary<string, IISCISite> SiteCache = new Dictionary<string, IISCISite>();
-        private IISCISite LoadSite(string host) { 
-            IISCISite s = null;
-            lock (SiteCache)
-            {
-                if (SiteCache.TryGetValue(host, out s))
-                    return s;
-                string path = null;
-                using (ServerManager svr = new ServerManager())
-                {
-                    var site = svr.Sites.First(x => x.Bindings.Any(y => y.Host != null && string.Equals(y.Host, host, StringComparison.CurrentCultureIgnoreCase)));
-                    var app = site.Applications.First();
-                    var vir = app.VirtualDirectories.First();
-                    path = vir.PhysicalPath;
-                }
-                s = new IISCISite(MvcApplication.StoreFolder.FullName + "\\" + host + "\\", path);
-                SiteCache[host] = s;
-            }
-            return s;
+        #region Site
+        public ServerManager IISServer { get; private set; }
+
+        public Microsoft.Web.Administration.Site IISSite { get; private set; }
+
+        public AppController()
+        {
+            IISServer = new ServerManager();
         }
 
-        public IISCISite Site { get; private set; }
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (IISServer != null)
+                IISServer.Dispose();
+        }
 
         protected override void Initialize(System.Web.Routing.RequestContext requestContext)
         {
-            
+
             base.Initialize(requestContext);
 
             string host = Request.Url.Host;
 
+            IISSite = IISServer.Sites.First(x => x.Bindings.Any(y => y.Host != null && string.Equals(y.Host, host, StringComparison.CurrentCultureIgnoreCase)));
 
-            Site = LoadSite(host);
+        } 
+        #endregion
 
+        public ActionResult Index() {
 
+            this.Register(HtmlResource.CreateScriptModel("model", new { Site = IISSite.Name, Bindings = IISSite.Bindings.Select(x => new { 
+                x.Host,
+                x.Protocol
+            }) }));
+            
+            return View();
+        } 
 
+        public ActionResult VirtualDirectories() {
+
+            return Json(IISSite.Applications.Select(x => new { 
+                x.Path
+            }), JsonRequestBehavior.AllowGet);
         }
 
     }
