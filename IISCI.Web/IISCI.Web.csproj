@@ -160,6 +160,10 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IISCI.Core\IISCI.Core.csproj">
+      <Project>{a187af38-557f-4d2c-8b92-763c198266c9}</Project>
+      <Name>IISCI.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TFSRestAPI\TFSRestAPI.csproj">
       <Project>{e3e0ee6d-0585-4624-9e99-5195bc877ff5}</Project>
       <Name>TFSRestAPI</Name>

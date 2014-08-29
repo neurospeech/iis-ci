@@ -1,6 +1,10 @@
-﻿using System;
+﻿using IISCI;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -14,75 +18,127 @@ namespace TFSRestAPI
     {
 
         private string baseUrl;
-        HttpClientHandler clientHandler;
-        HttpClient client;
 
-        public TFSRestClient(string domain, string username, string password, string host, bool secure = true, int port=443)
+        System.Net.CookieContainer cookies = new CookieContainer();
+        NetworkCredential credentials;
+
+        public TFSRestClient()
         {
-            if (secure)
-            {
-                baseUrl = string.Format("https://{0}:{1}", host, port);
-            }
-            else {
-                baseUrl = string.Format("http://{0}:{1}", host, port);
-            }
-
-            clientHandler = new HttpClientHandler();
-            clientHandler.CookieContainer = new System.Net.CookieContainer();
-            clientHandler.Credentials = new NetworkCredential(username, password, domain);
-            clientHandler.UseDefaultCredentials = true;
-            clientHandler.UseCookies = true;
-            client = new HttpClient(clientHandler);
-            
         }
 
-        private async Task<T> Invoke<T>(string url, object p, HttpMethod method, Func<HttpContent,Task<T>> func)
+        protected void Initialize(BuildConfig config) 
         {
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            string requestUrl = baseUrl + url;
-            HttpRequestMessage request = new HttpRequestMessage(method, requestUrl);
-            if (p != null)
-            {
-                var input = new StringContent(js.Serialize(p), Encoding.UTF8, "application/json; charset=utf-8");
-                request.Content = input;
-            }
-            var r = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            baseUrl = config.SourceUrl;
 
+            credentials = new NetworkCredential(config.Username, config.Password, config.Domain);
+        }
 
-            if (r.IsSuccessStatusCode)
+        private async Task<string> Invoke(string url, object p, HttpMethod method)
+        {
+            using (System.Net.Http.HttpClientHandler handler = new HttpClientHandler())
             {
-                return await func(r.Content);
-            }
-            else
-            {
-                var content = await r.Content.ReadAsStringAsync();
-                throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, content);
+                handler.CookieContainer = cookies;
+                handler.Credentials = credentials;
+                handler.UseDefaultCredentials = true;
+                handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                handler.UseCookies = true;
+                using (var client = new HttpClient(handler))
+                {
+                    client.Timeout = TimeSpan.FromMinutes(10);
+                    JavaScriptSerializer js = new JavaScriptSerializer();
+                    string requestUrl = baseUrl + url;
+                    HttpRequestMessage request = new HttpRequestMessage(method, requestUrl);
+                    if (p != null)
+                    {
+                        var input = new StringContent(js.Serialize(p), Encoding.UTF8, "application/json; charset=utf-8");
+                        request.Content = input;
+                    }
+                    var r = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+
+                    if (!r.IsSuccessStatusCode)
+                    {
+                        var content = await r.Content.ReadAsStringAsync();
+                        throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, url + "\r\n" + content);
+                    }
+
+                    return await r.Content.ReadAsStringAsync();
+                }
             }
         }
+
+        protected async Task DownloadAsync(string url, Stream outputStream)
+        {
+            using (System.Net.Http.HttpClientHandler handler = new HttpClientHandler())
+            {
+                handler.CookieContainer = cookies;
+                handler.Credentials = credentials;
+                handler.UseDefaultCredentials = true;
+                handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                handler.UseCookies = true;
+                using (var client = new HttpClient(handler))
+                {
+                    client.Timeout = TimeSpan.FromMinutes(10);
+                    JavaScriptSerializer js = new JavaScriptSerializer();
+                    string requestUrl = baseUrl + url;
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                    var r = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+
+                    if (!r.IsSuccessStatusCode)
+                    {
+                        var content = await r.Content.ReadAsStringAsync();
+                        throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, url + "\r\n" + content);
+                    }
+
+                    var input = await r.Content.ReadAsStreamAsync();
+                    await input.CopyToAsync(outputStream);
+                }
+            }
+        }
+
 
 
         protected async Task<T> Get<T>(string url, object p = null)
         {
-            return await Invoke(url, p, HttpMethod.Get, async response => {
-                var content = await response.ReadAsStringAsync();
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                return js.Deserialize<T>(content);
-            });
+            var content = await Invoke(url, p, HttpMethod.Get);
+
+            return JsonConvert.DeserializeObject<T>(content);
+        }
+
+        public class CustomResolver : SimpleTypeResolver
+        {
+            public static CustomResolver Instance = new CustomResolver();
+
+            private CustomResolver()
+            {
+
+            }
+
+            public override Type ResolveType(string id)
+            {
+                Type t =  base.ResolveType(id);
+                if (t == null) {
+                    return typeof(Dictionary<string, object>);
+                }
+                return t;
+            }
+
+            public override string ResolveTypeId(Type type)
+            {
+                return base.ResolveTypeId(type);
+            }
         }
 
         protected async Task<dynamic> Get(string url, object p = null) {
-            return await Invoke(url, p, HttpMethod.Get, async response =>
-            {
-                var content = await response.ReadAsStringAsync();
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                return ResultDictionary.BuildResult(js.DeserializeObject(content));
-            });
+            var content = await Invoke(url, p, HttpMethod.Get);
+
+            JavaScriptSerializer js = new JavaScriptSerializer(CustomResolver.Instance);
+            object value = js.Deserialize<Dictionary<string, object>>(content);
+            return ResultDictionary.BuildResult(value);
         }
 
 
         public void Dispose()
         {
-            client.Dispose();
         }
     }
 

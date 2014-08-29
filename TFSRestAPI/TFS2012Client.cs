@@ -1,43 +1,61 @@
-﻿using System;
+﻿using IISCI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace TFSRestAPI
 {
-    public class TFS2012Client : TFSRestClient
+
+    public class WrappedArray<T> {
+        public T[] __wrappedArray { get; set; }
+    }
+
+    public class TFSFileItem : ISourceItem {
+        public long id { get; set; }
+        public int itemType { get; set; }
+        public string serverItem { get; set; }
+        public string version { get; set; }
+        public long deletionId { get; set; }
+
+        public string Folder { get; set; }
+        public bool IsDirectory { get { return itemType == 1; } }
+        public string Name { get { return System.IO.Path.GetFileName(serverItem); } }
+        public string Url { get { return serverItem; } }
+        public string Version { get { return this.version; } }
+    }
+
+    public class TFS2012Client : TFSRestClient, ISourceController
     {
 
-        public TFS2012Client(string domain, string username, string password, string host, bool secure = true, int port = 443)
-            :base(domain,username,password,host,secure,port)
+        public TFS2012Client()
         {
 
         }
 
-        public async Task<IEnumerable<TFSSourceItem>> GetSourceItems(string collection, string path = null) {
+        public async Task<IEnumerable<TFSFileItem>> GetSourceItems(string collection, string path)
+        {
 
-            string url = "/tfs/" + collection + "/_api/_versioncontrol/items?__v=1&type=Any&recursion=OneLevel&path=" ;
+            string url = "/tfs/" + collection + "/_api/_versioncontrol/items?__v=1&type=Any&recursion=Full&path=" ;
             if (!path.StartsWith("$")) {
-                path = "$" + path;
+                path = "$/" + collection + path;
             }
 
-            dynamic result = await Get(url);
+            path = HttpUtility.UrlEncode(path);
 
-            List<TFSSourceItem> list = new List<TFSSourceItem>();
+            var result = await Get<WrappedArray<TFSFileItem>>(url + path);
 
-            foreach (dynamic item in result.__wrappedArray)
+            List<TFSFileItem> list = new List<TFSFileItem>();
+
+            foreach (var item in result.__wrappedArray)
             {
-                TFSSourceItem sourceItem = new TFSSourceItem();
-                sourceItem.Path = item.serverItem;
-                sourceItem.Name = System.IO.Path.GetFileName(sourceItem.Path.Substring(1));
-                sourceItem.IsDirectory = item.itemType == 1;
-                sourceItem.IsBranch = item.isBranch;
-                sourceItem.ID = item.id;
-                sourceItem.ChangeSet = item.changeset;
-                list.Add(sourceItem);
+                if (item.deletionId == 0)
+                {
+                    list.Add(item);
+                }
             }
-
             return list;
         }
 
@@ -93,6 +111,61 @@ namespace TFSRestAPI
             return collections;
         }
 
+        public async Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath){
+            string url = "/tfs/" + config.Collection + "/_versionControl/itemContent?path=";
+            url += HttpUtility.UrlEncode(item.Url);
+            Console.WriteLine(item.Url);
+            Console.WriteLine(filePath);
+            System.IO.FileInfo finfo = new System.IO.FileInfo(filePath);
+            if (!finfo.Directory.Exists) {
+                finfo.Directory.Create();
+            }
+            using(var fs = System.IO.File.OpenWrite(filePath)){
+                await DownloadAsync(url, fs);
+            }
+
+        }
+
+        async Task<string> ISourceController.SyncAsync(BuildConfig config, LocalRepository localRepository)
+        {
+            Initialize(config);
+
+
+            try {
+                List<ISourceItem> remoteItems = new List<ISourceItem>();
+                await GetAllFiles(remoteItems, config.Collection, config.RootFolder);
+                var changes = localRepository.GetChanges(remoteItems);
+
+                var files = changes.Select(x => x.RepositoryFile).Where(x => !x.IsDirectory).ToList();
+
+                foreach (var slice in files.Slice(10))
+                {
+                    var downloadList = slice.Select(x => DownloadAsync(config, x, localRepository.LocalFolder + x.Folder + "/" + x.Name));
+
+                    await Task.WhenAll(downloadList);
+                }
+                localRepository.UpdateFiles(changes.Select(x => x.RepositoryFile));
+            }
+            catch (Exception ex) {
+                return ex.ToString();
+            }
+            return null;
+        }
+
+        private async Task GetAllFiles(List<ISourceItem> remoteItems, string collection, string rootFolder)
+        {
+            Console.WriteLine(rootFolder);
+            var sourceItems = (await GetSourceItems(collection, rootFolder)).ToList();
+            foreach (var source in sourceItems)
+            {
+                source.Folder = source.Url.Substring(rootFolder.Length);
+                if (!source.IsDirectory)
+                {
+                    source.Folder = source.Folder.Substring(0, source.Folder.Length - source.Name.Length);
+                }
+                remoteItems.Add(source);
+            }
+        }
     }
 
     public class TFSItem {
@@ -111,11 +184,21 @@ namespace TFSRestAPI
     public class TFSProject : TFSItem {
     }
 
-    public class TFSSourceItem : TFSItem
+    public class TFSSourceItem : TFSItem, ISourceItem
     {
         public bool IsDirectory { get; set; }
         public bool IsBranch { get; set; }
         public int ChangeSet { get; set; }
+        public string Folder { get; set; }
         public long ID { get; set; }
+
+        string ISourceItem.Version
+        {
+            get
+            {
+                return ChangeSet.ToString();
+            }
+        }
+
     }
 }

@@ -21,7 +21,6 @@ namespace IISCI.Web.Controllers
 
             TFSPull pull = Site.LoadConfig<TFSPull>();
 
-            client = new TFS2012Client(pull.Domain, pull.Username, pull.Password, pull.Host,pull.Secure,pull.Port);
         }
 
         protected override void Dispose(bool disposing)

@@ -6,3 +6,5 @@ TFSRestAPIConsole/obj/*
 TFSRestAPIConsole/bin/*
 packages/*
 *.suo
+/IISCI.Build/obj/Debug
+/IISCI.Core/obj/Debug

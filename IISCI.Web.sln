@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISCI.Web", "IISCI.Web\IISC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFSRestAPI", "TFSRestAPI\TFSRestAPI.csproj", "{E3E0EE6D-0585-4624-9E99-5195BC877FF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFSRestAPIConsole", "TFSRestAPIConsole\TFSRestAPIConsole.csproj", "{05315117-FD1D-4070-AF97-4323A9EB6279}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F018866E-2070-4E9A-940C-ED20A933C2AC}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -20,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{07B4C2
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISCI.Build", "IISCI.Build\IISCI.Build.csproj", "{9BA08987-42E4-413A-9B6E-F8DC35F7C9EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISCI.Core", "IISCI.Core\IISCI.Core.csproj", "{A187AF38-557F-4D2C-8B92-763C198266C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +37,14 @@ Global
 		{E3E0EE6D-0585-4624-9E99-5195BC877FF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3E0EE6D-0585-4624-9E99-5195BC877FF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3E0EE6D-0585-4624-9E99-5195BC877FF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{05315117-FD1D-4070-AF97-4323A9EB6279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{05315117-FD1D-4070-AF97-4323A9EB6279}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{05315117-FD1D-4070-AF97-4323A9EB6279}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{05315117-FD1D-4070-AF97-4323A9EB6279}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BA08987-42E4-413A-9B6E-F8DC35F7C9EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BA08987-42E4-413A-9B6E-F8DC35F7C9EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BA08987-42E4-413A-9B6E-F8DC35F7C9EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BA08987-42E4-413A-9B6E-F8DC35F7C9EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A187AF38-557F-4D2C-8B92-763C198266C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A187AF38-557F-4D2C-8B92-763C198266C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A187AF38-557F-4D2C-8B92-763C198266C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A187AF38-557F-4D2C-8B92-763C198266C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
