@@ -1,4 +1,4 @@
-iis-ci
+IIS-CI
 ======
 
 IIS Continuous Integration from Source Control.
@@ -12,6 +12,7 @@ Upcoming Items
 
 1. IIS Site Editor to configure build-config.json file
 2. IIS Web Hook to automatically fetch-build-deploy
+3. Deploy using Source zip obtained from Git Sites like BitBucket, GitHub etc
  
 Why not use Kudu?
 ----------------
