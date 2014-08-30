@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,15 +25,40 @@ namespace IISCI.Build
 
             BuildConfig config = JsonStorage.ReadFile<BuildConfig>(buildFolder + "\\build-config.json");
 
+            string buildLog = buildFolder + "\\build-log.txt";
+
             var result = DownloadFilesAsync(config, buildFolder).Result;
 
             Console.WriteLine(result);
 
             if (!string.IsNullOrWhiteSpace(result))
             {
-                System.IO.File.WriteAllText(buildFolder + "\\build.txt", result);
+                File.WriteAllText(buildLog, result);
             }
-            
+
+            if (config.UseMSBuild) {
+                string batchFileContents = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
+                batchFileContents +=  "\"" + buildFolder + "\\source\\" + config.SolutionPath + "\"";
+                batchFileContents += " /t:Build ";
+                batchFileContents += " /p:Configuration=" + config.MSBuildConfig;
+                batchFileContents += " > build-log.txt";
+
+                string batchFile = buildFolder + "\\msbuild.bat";
+
+                File.WriteAllText(batchFile, batchFileContents);
+
+                using (StringWriter logWriter = new StringWriter()) {
+                    using (StringWriter errorWriter = new StringWriter()) {
+                        ProcessHelper.Execute(batchFile, "", logWriter, errorWriter);
+
+                        result = errorWriter.ToString();
+                    }
+                    result += logWriter.ToString();
+                }
+
+                Console.WriteLine(result);
+                File.AppendAllText(buildLog,result);
+            }
 
         }
 

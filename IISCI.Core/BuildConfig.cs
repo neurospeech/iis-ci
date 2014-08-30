@@ -29,6 +29,8 @@ namespace IISCI
         public string WebProjectPath { get; set; }
 
         public bool UseMSBuild { get; set; }
+        public string MSBuildConfig { get; set; }
+        public string MSBuildParameters { get; set; }
 
         public bool DeleteLocalFiles { get; set; }
 

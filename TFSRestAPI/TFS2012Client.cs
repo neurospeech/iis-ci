@@ -112,7 +112,7 @@ namespace TFSRestAPI
         }
 
         public async Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath){
-            string url = "/tfs/" + config.Collection + "/_versionControl/itemContent?path=";
+            string url = "/tfs/" + config.Collection + "/_api/_versionControl/itemContent?path=";
             url += HttpUtility.UrlEncode(item.Url);
             Console.WriteLine(item .Url);
             System.IO.FileInfo finfo = new System.IO.FileInfo(filePath);
