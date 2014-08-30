@@ -41,7 +41,6 @@ namespace IISCI.Build
                 batchFileContents +=  "\"" + buildFolder + "\\source\\" + config.SolutionPath + "\"";
                 batchFileContents += " /t:Build ";
                 batchFileContents += " /p:Configuration=" + config.MSBuildConfig;
-                batchFileContents += " > build-log.txt";
 
                 string batchFile = buildFolder + "\\msbuild.bat";
 
