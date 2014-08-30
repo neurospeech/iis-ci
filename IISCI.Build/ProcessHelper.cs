@@ -38,12 +38,12 @@ namespace IISCI.Build
 
             p.OutputDataReceived += (s, e) =>
             {
-                console.Write(e.Data);
+                console.WriteLine(e.Data);
             };
 
             p.ErrorDataReceived += (s, e) =>
             {
-                errors.Write(e.Data);
+                errors.WriteLine(e.Data);
             };
 
             p.Start();
