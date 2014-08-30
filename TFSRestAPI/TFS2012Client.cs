@@ -114,8 +114,7 @@ namespace TFSRestAPI
         public async Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath){
             string url = "/tfs/" + config.Collection + "/_versionControl/itemContent?path=";
             url += HttpUtility.UrlEncode(item.Url);
-            Console.WriteLine(item.Url);
-            Console.WriteLine(filePath);
+            Console.WriteLine(item .Url);
             System.IO.FileInfo finfo = new System.IO.FileInfo(filePath);
             if (!finfo.Directory.Exists) {
                 finfo.Directory.Create();
@@ -136,15 +135,16 @@ namespace TFSRestAPI
                 await GetAllFiles(remoteItems, config.Collection, config.RootFolder);
                 var changes = localRepository.GetChanges(remoteItems);
 
-                var files = changes.Select(x => x.RepositoryFile).Where(x => !x.IsDirectory).ToList();
+                var updatedFiles = changes.Where(x=>x.Type == ChangeType.Added || x.Type == ChangeType.Modified)
+                    .Select(x => x.RepositoryFile).Where(x => !x.IsDirectory).ToList();
 
-                foreach (var slice in files.Slice(10))
+                foreach (var slice in updatedFiles.Slice(10))
                 {
                     var downloadList = slice.Select(x => DownloadAsync(config, x, localRepository.LocalFolder + x.Folder + "/" + x.Name));
 
                     await Task.WhenAll(downloadList);
+                    localRepository.UpdateFiles(slice);
                 }
-                localRepository.UpdateFiles(changes.Select(x => x.RepositoryFile));
             }
             catch (Exception ex) {
                 return ex.ToString();

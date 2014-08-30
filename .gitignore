@@ -8,3 +8,6 @@ packages/*
 *.suo
 /IISCI.Build/obj/Debug
 /IISCI.Core/obj/Debug
+/IISCI.Build/bin/Debug
+/IISCI.Core/bin/Debug
+*.user

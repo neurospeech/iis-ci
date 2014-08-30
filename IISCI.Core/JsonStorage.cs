@@ -36,6 +36,7 @@ namespace IISCI
         public static void Write(object obj, TextWriter writer) 
         {
             JsonSerializer js = new JsonSerializer();
+            js.Formatting = Formatting.Indented;
             using (JsonTextWriter jsonWriter = new JsonTextWriter(writer))
             {
                 js.Serialize(jsonWriter, obj);
