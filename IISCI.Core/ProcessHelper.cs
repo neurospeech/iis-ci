@@ -7,15 +7,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace IISCI.Build
+namespace IISCI
 {
     public class ProcessHelper
     {
         public static int Execute(
             string program,
             string arguements,
-            StringWriter console,
-            StringWriter errors)
+            Action<string> consoleAction,
+            Action<string> errorAction)
         {
 
             ProcessStartInfo info = new ProcessStartInfo(program, arguements);
@@ -38,12 +38,12 @@ namespace IISCI.Build
 
             p.OutputDataReceived += (s, e) =>
             {
-                console.WriteLine(e.Data);
+                consoleAction(e.Data);
             };
 
             p.ErrorDataReceived += (s, e) =>
             {
-                errors.WriteLine(e.Data);
+                errorAction(e.Data);
             };
 
             p.Start();
@@ -58,13 +58,15 @@ namespace IISCI.Build
         }
 
 
-        internal static void Execute(string batchFile)
+        public static void Execute(string batchFile)
         {
             int exitCode = 0;
             using (StringWriter errorWriter = new StringWriter()) {
                 using (StringWriter consoleWriter = new StringWriter())
                 {
-                    exitCode = ProcessHelper.Execute(batchFile, "", consoleWriter, errorWriter);
+                    exitCode = ProcessHelper.Execute(batchFile, "",
+                        a => consoleWriter.WriteLine(a),
+                        a => errorWriter.WriteLine(a));
 
                     Console.WriteLine(consoleWriter.ToString());
                 }

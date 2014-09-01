@@ -14,6 +14,8 @@ namespace IISCI
             UseMSBuild = true;
         }
 
+        public int SiteId { get; set; }
+
         public string SiteHost { get; set; }
 
         public string SiteRoot { get; set; }

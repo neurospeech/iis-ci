@@ -1,5 +1,4 @@
 ﻿@{
-    Html.Register(IISCI.Web.AppResources.AtomsScript);
 }
 
 <!DOCTYPE html>
@@ -9,12 +8,26 @@
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
 
-@Html.RenderResources()
+    <script src="~/Scripts/jquery-1.11.1.min.js"></script>
+    <script src="~/Scripts/atoms.min.js"></script>
+    <link href="~/Style/atoms/atoms.css" rel="stylesheet" />
+
 
 </head>
 <body>
-    <div atom-type="AtomApplication" atom-render-as-page="true">
+    <div atom-type="AtomApplication">
+        <div atom-dock="Top" style="height:30px">
+            <h3>IIS-CI</h3>
+            <span>IIS continous integration provided by NeuroSpeech</span>
+        </div>
         @RenderBody()
+        <div 
+             atom-dock="Bottom" style="height:20px">
+            <a 
+               href="http://atomsjs.neurospeech.com" 
+               target="_blank"
+               style="right:10px;top:3px;">Powered by Atoms.js</a>
+        </div>
     </div>
 </body>
 </html>

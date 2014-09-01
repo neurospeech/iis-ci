@@ -17,8 +17,8 @@
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
-    <IISExpressAnonymousAuthentication />
-    <IISExpressWindowsAuthentication />
+    <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -98,13 +98,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppResources.cs" />
-    <Compile Include="Controllers\AppController.cs" />
-    <Compile Include="Controllers\TFSController.cs" />
+    <Compile Include="Controllers\BuildActionResult.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\IISController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Infrastructure\HtmlResources.cs" />
     <Compile Include="Models\IISCISite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -137,7 +136,9 @@
     <Content Include="Style\atoms\buttons\delete.png" />
     <Content Include="Style\atoms\buttons\down.png" />
     <Content Include="Style\atoms\buttons\up.png" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -146,7 +147,7 @@
     </Content>
     <Content Include="Views\Web.config" />
     <Content Include="Scripts\jquery-1.11.1.min.map" />
-    <Content Include="Views\App\Index.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
   </ItemGroup>
@@ -157,9 +158,17 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IISCI.Build\IISCI.Build.csproj">
+      <Project>{9ba08987-42e4-413a-9b6e-f8dc35f7c9eb}</Project>
+      <Name>IISCI.Build</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IISCI.Core\IISCI.Core.csproj">
       <Project>{a187af38-557f-4d2c-8b92-763c198266c9}</Project>
       <Name>IISCI.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IISCI.Git\IISCI.Git.csproj">
+      <Project>{7a18b8b5-f91d-45cf-94c2-78766bbc2bb1}</Project>
+      <Name>IISCI.Git</Name>
     </ProjectReference>
     <ProjectReference Include="..\TFSRestAPI\TFSRestAPI.csproj">
       <Project>{e3e0ee6d-0585-4624-9e99-5195bc877ff5}</Project>

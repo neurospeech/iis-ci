@@ -14,7 +14,6 @@ namespace IISCI.Web
     public class MvcApplication : System.Web.HttpApplication
     {
 
-        public static DirectoryInfo StoreFolder;
 
         protected void Application_Start()
         {
@@ -24,9 +23,6 @@ namespace IISCI.Web
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
-            StoreFolder = new DirectoryInfo(System.Web.Configuration.WebConfigurationManager.AppSettings["Store"]);
-            if (!StoreFolder.Exists)
-                StoreFolder.Create();
         }
     }
 }

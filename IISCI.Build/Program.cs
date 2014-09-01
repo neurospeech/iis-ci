@@ -24,6 +24,12 @@ namespace IISCI.Build
             }
 
             BuildConfig config = JsonStorage.ReadFile<BuildConfig>(buildFolder + "\\build-config.json");
+            config.SiteHost = siteRoot;
+            int id = 0;
+            if (int.TryParse(config.SiteHost, out id)) {
+                config.SiteHost = null;
+                config.SiteId = id;
+            }
             config.BuildFolder = buildFolder;
             string buildLog = buildFolder + "\\build-log.txt";
 
@@ -67,12 +73,18 @@ namespace IISCI.Build
                     // transform...
 
                     XDTService.Instance.Process(config);
+
+                    IISManager.Instance.DeployFiles(config);
+
+                    Console.WriteLine("+++++++++++++++++++++ Deployment Successful !!! +++++++++++++++++++++");
                 }
 
             }
             catch (Exception ex)
             {
+                Environment.ExitCode = -1;
                 Console.WriteLine(ex.ToString());
+                Console.WriteLine("************************* Deployment failed ***************************");
             }
         }
 

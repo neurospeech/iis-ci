@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "IISCI";
+}
+
+<div 
+     atom-name="frameView"
+     atom-type="AtomFrameView"
+     atom-url="main">
+</div>
+
+<div atom-template-name="main" style="overflow:auto">
+    <h4>
+        IIS Sites
+    </h4>
+
+    <table atom-type="AtomItemsControl"
+         atom-items="{AtomPromise.json('/iis/sites')}">
+        <tr atom-template="itemTemplate">
+            <td atom-text="{$data.Name}"></td>
+            <td atom-text="{($data.Bindings).join(', ')}"></td>
+        </tr>
+    </table>
+</div>
