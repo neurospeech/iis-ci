@@ -35,8 +35,16 @@ namespace TFSRestAPI
 
         }
 
-        public async Task<IEnumerable<TFSFileItem>> GetSourceItems(string collection, string path)
+        public void Initialize(BuildConfig config) {
+            InitializeClient(config);
+        }
+
+        public async Task<List<ISourceItem>> FetchAllFiles(BuildConfig config)
         {
+
+            string collection = config.Collection;
+            string rootFolder = config.RootFolder;
+            string path = rootFolder;
 
             string url = "/tfs/" + collection + "/_api/_versioncontrol/items?__v=1&type=Any&recursion=Full&path=" ;
             if (!path.StartsWith("$")) {
@@ -47,13 +55,18 @@ namespace TFSRestAPI
 
             var result = await Get<WrappedArray<TFSFileItem>>(url + path);
 
-            List<TFSFileItem> list = new List<TFSFileItem>();
+            List<ISourceItem> list = new List<ISourceItem>();
 
             foreach (var item in result.__wrappedArray)
             {
                 if (item.deletionId == 0)
                 {
                     list.Add(item);
+                    item.Folder = item.Url.Substring(rootFolder.Length);
+                    if (!item.IsDirectory)
+                    {
+                        item.Folder = item.Folder.Substring(0, item.Folder.Length - item.Name.Length);
+                    }
                 }
             }
             return list;
@@ -114,58 +127,13 @@ namespace TFSRestAPI
         public async Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath){
             string url = "/tfs/" + config.Collection + "/_api/_versionControl/itemContent?path=";
             url += HttpUtility.UrlEncode(item.Url);
-            Console.WriteLine(item .Url);
-            System.IO.FileInfo finfo = new System.IO.FileInfo(filePath);
-            if (!finfo.Directory.Exists) {
-                finfo.Directory.Create();
-            }
             using(var fs = System.IO.File.OpenWrite(filePath)){
                 await DownloadAsync(url, fs);
             }
 
         }
 
-        async Task<string> ISourceController.SyncAsync(BuildConfig config, LocalRepository localRepository)
-        {
-            Initialize(config);
 
-
-            try {
-                List<ISourceItem> remoteItems = new List<ISourceItem>();
-                await GetAllFiles(remoteItems, config.Collection, config.RootFolder);
-                var changes = localRepository.GetChanges(remoteItems);
-
-                var updatedFiles = changes.Where(x=>x.Type == ChangeType.Added || x.Type == ChangeType.Modified)
-                    .Select(x => x.RepositoryFile).Where(x => !x.IsDirectory).ToList();
-
-                foreach (var slice in updatedFiles.Slice(10))
-                {
-                    var downloadList = slice.Select(x => DownloadAsync(config, x, localRepository.LocalFolder + x.Folder + "/" + x.Name));
-
-                    await Task.WhenAll(downloadList);
-                    localRepository.UpdateFiles(slice);
-                }
-            }
-            catch (Exception ex) {
-                return ex.ToString();
-            }
-            return null;
-        }
-
-        private async Task GetAllFiles(List<ISourceItem> remoteItems, string collection, string rootFolder)
-        {
-            Console.WriteLine(rootFolder);
-            var sourceItems = (await GetSourceItems(collection, rootFolder)).ToList();
-            foreach (var source in sourceItems)
-            {
-                source.Folder = source.Url.Substring(rootFolder.Length);
-                if (!source.IsDirectory)
-                {
-                    source.Folder = source.Folder.Substring(0, source.Folder.Length - source.Name.Length);
-                }
-                remoteItems.Add(source);
-            }
-        }
     }
 
     public class TFSItem {

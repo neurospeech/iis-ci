@@ -95,7 +95,15 @@ namespace IISCI.Build
 
                 foreach (var slice in updatedFiles.Slice(10))
                 {
-                    var downloadList = slice.Select(x => ctrl.DownloadAsync(config, x, rep.LocalFolder + x.Folder + "/" + x.Name));
+                    var downloadList = slice.Select(x => {
+                        string filePath = rep.LocalFolder + x.Folder + "/" + x.Name;
+                        System.IO.FileInfo finfo = new System.IO.FileInfo(filePath);
+                        if (!finfo.Directory.Exists)
+                        {
+                            finfo.Directory.Create();
+                        }
+                        return ctrl.DownloadAsync(config, x, filePath); 
+                    });
 
                     await Task.WhenAll(downloadList);
                     rep.UpdateFiles(slice);
@@ -118,6 +126,8 @@ namespace IISCI.Build
                     return new TFS2012Client();
                 case "zipurl":
                     return new ZipSourceController();
+                case "git":
+                    return new Git.GitSourceController();
                 default:
                     break;
             }

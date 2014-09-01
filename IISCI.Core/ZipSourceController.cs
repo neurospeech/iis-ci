@@ -37,6 +37,8 @@ namespace IISCI
                 }
             }
 
+            List<ISourceItem> files = new List<ISourceItem>();
+
             using (ZipFile zip = new ZipFile(zipFile)) {
                 foreach (ZipEntry entry in zip)
                 {
@@ -49,20 +51,40 @@ namespace IISCI
                         {
                             fi.Directory.Create();
                         }
-                        using (var fs = fi.OpenWrite()) {
-                            await s.CopyToAsync(fs);
+                        using (FileStream fs = fi.OpenWrite()) {
+                            await fs.CopyToAsync(s);
                         }
+
+                        string fileName = System.IO.Path.GetFileName(filePath);
+
+                        ZipSourceItem file = new ZipSourceItem { 
+                            Url = filePath,
+                            Name = System.IO.Path.GetFileName(filePath),
+                            Folder = entry.Name.Substring(0,entry.Name.Length-fileName.Length),
+                            IsDirectory = false
+                        };
+                        files.Add(file);
                     }                    
                 }
             }
 
-            // analyze and decompress zip file...
-            throw new NotImplementedException();
+            var md5 = System.Security.Cryptography.MD5.Create();
+
+            Parallel.ForEach(files, file => {
+                ((ZipSourceItem)file).Version = Convert.ToBase64String(md5.ComputeHash(File.ReadAllBytes(file.Url)));
+            });
+
+            return files;
         }
 
-        public Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath)
+        public async Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath)
         {
-            return Task.FromResult(0);
+            using (var source = File.OpenRead(item.Url)) {
+                using (var destination = File.OpenWrite(filePath))
+                {
+                    await source.CopyToAsync(destination);
+                }
+            }
         }
 
         public void Dispose()

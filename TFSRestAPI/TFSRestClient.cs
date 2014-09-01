@@ -26,7 +26,7 @@ namespace TFSRestAPI
         {
         }
 
-        protected void Initialize(BuildConfig config) 
+        protected void InitializeClient(BuildConfig config) 
         {
             baseUrl = config.SourceUrl;
 

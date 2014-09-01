@@ -11,3 +11,5 @@ packages/*
 /IISCI.Build/bin/Debug
 /IISCI.Core/bin/Debug
 *.user
+/IISCI.Git/bin/Debug
+/IISCI.Git/obj/Debug
