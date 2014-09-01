@@ -8,7 +8,9 @@ namespace IISCI
 {
     public interface ISourceController: IDisposable
     {
-        Task<string> SyncAsync(BuildConfig config, LocalRepository localRepository);
+        void Initialize(BuildConfig config);
+
+        Task<List<ISourceItem>> FetchAllFiles(BuildConfig config);
 
         Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath);
     }

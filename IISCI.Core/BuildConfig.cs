@@ -10,6 +10,8 @@ namespace IISCI
     public class BuildConfig
     {
 
+        public string BuildFolder { get; set; }
+
         public string SourceType { get; set; }
 
         public string SourceUrl { get; set; }

@@ -27,6 +27,8 @@ namespace IISCI.Build
 
             string buildLog = buildFolder + "\\build-log.txt";
 
+            config.BuildFolder = buildFolder;
+
             var result = DownloadFilesAsync(config, buildFolder).Result;
 
             Console.WriteLine(result);
@@ -69,13 +71,41 @@ namespace IISCI.Build
                 {
                     using (LocalRepository rep = new LocalRepository(buildFolder))
                     {
-                        return await ctrl.SyncAsync(config, rep);
+                        return await SyncAsync(ctrl,config, rep);
                     }
                 }
             }
             catch (Exception ex) {
                 return ex.ToString();
             }
+        }
+
+        private static async Task<string> SyncAsync(ISourceController ctrl, BuildConfig config, LocalRepository rep)
+        {
+            ctrl.Initialize(config);
+
+
+            try
+            {
+                List<ISourceItem> remoteItems = await ctrl.FetchAllFiles(config);
+                var changes = rep.GetChanges(remoteItems);
+
+                var updatedFiles = changes.Where(x => x.Type == ChangeType.Added || x.Type == ChangeType.Modified)
+                    .Select(x => x.RepositoryFile).Where(x => !x.IsDirectory).ToList();
+
+                foreach (var slice in updatedFiles.Slice(10))
+                {
+                    var downloadList = slice.Select(x => ctrl.DownloadAsync(config, x, rep.LocalFolder + x.Folder + "/" + x.Name));
+
+                    await Task.WhenAll(downloadList);
+                    rep.UpdateFiles(slice);
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+            return null;
         }
 
         private static ISourceController GetController(BuildConfig config)
@@ -86,6 +116,8 @@ namespace IISCI.Build
             {
                 case "tfs2012":
                     return new TFS2012Client();
+                case "zipurl":
+                    return new ZipSourceController();
                 default:
                     break;
             }

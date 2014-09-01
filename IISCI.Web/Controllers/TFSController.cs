@@ -34,10 +34,6 @@ namespace IISCI.Web.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
-        public async Task<ActionResult> Source(string collection, string path) {
-            var result = await client.GetSourceItems(collection, path);
-            return Json(result, JsonRequestBehavior.AllowGet);
-        }
 
         public ActionResult Settings() { 
             return Json(Site.LoadConfig<TFSPull>(), JsonRequestBehavior.AllowGet );
