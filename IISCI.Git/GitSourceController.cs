@@ -21,18 +21,28 @@ namespace IISCI.Git
         {
 
             DirectoryInfo gitFolder = new DirectoryInfo(config.BuildFolder + "\\git");
-            if (gitFolder.Exists) {
-                gitFolder.Delete();
+            if (!gitFolder.Exists)
+            {
+                gitFolder.Create();
+
+
+                Console.WriteLine("Cloning repository " + config.SourceUrl);
+
+                CloneOptions clone = new CloneOptions();
+                clone.CredentialsProvider = CredentialsHandler;
+                var rep = Repository.Clone(config.SourceUrl, gitFolder.FullName, clone);
+
+                Console.WriteLine("Repository clone successful");
             }
-            gitFolder.Create();
-
-            Console.WriteLine("Cloning repository " + config.SourceUrl);
-
-            CloneOptions clone = new CloneOptions();
-            clone.CredentialsProvider = CredentialsHandler;
-            var rep = Repository.Clone(config.SourceUrl, gitFolder.FullName, clone);
-
-            Console.WriteLine("Repository clone successful");
+            else {
+                Console.WriteLine("Fetching remote Repository");
+                var rep = new Repository(gitFolder.FullName);
+                FetchOptions options = new FetchOptions();
+                options.CredentialsProvider = CredentialsHandler;
+                Remote remote = rep.Network.Remotes["origin"];
+                rep.Fetch(remote.Name, options);
+                Console.WriteLine("Fetch successful");
+            }
 
             List<ISourceItem> files = new List<ISourceItem>();
 

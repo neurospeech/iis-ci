@@ -13,54 +13,67 @@ namespace IISCI.Build
     {
         static void Main(string[] args)
         {
-
             string siteRoot = args[0];
 
             string buildFolder = args[1];
 
             string configXDT = null;
-            if (args.Length > 2) {
+            if (args.Length > 2)
+            {
                 configXDT = args[2];
             }
 
             BuildConfig config = JsonStorage.ReadFile<BuildConfig>(buildFolder + "\\build-config.json");
-
+            config.BuildFolder = buildFolder;
             string buildLog = buildFolder + "\\build-log.txt";
 
-            config.BuildFolder = buildFolder;
-
-            var result = DownloadFilesAsync(config, buildFolder).Result;
-
-            Console.WriteLine(result);
-
-            if (!string.IsNullOrWhiteSpace(result))
+            TextWriter oldWriter = Console.Out;
+            using (StreamWriter sw = new StreamWriter(buildLog))
             {
-                File.WriteAllText(buildLog, result);
+                Console.SetOut(sw);
+                Execute(config);
+                sw.Flush();
+                Console.SetOut(oldWriter);
             }
 
-            if (config.UseMSBuild) {
-                string batchFileContents = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
-                batchFileContents +=  "\"" + buildFolder + "\\source\\" + config.SolutionPath + "\"";
-                batchFileContents += " /t:Build ";
-                batchFileContents += " /p:Configuration=" + config.MSBuildConfig;
+        }
 
-                string batchFile = buildFolder + "\\msbuild.bat";
+        private static void Execute(BuildConfig config)
+        {
+            try
+            {
 
-                File.WriteAllText(batchFile, batchFileContents);
+                string buildFolder = config.BuildFolder;
 
-                using (StringWriter logWriter = new StringWriter()) {
-                    using (StringWriter errorWriter = new StringWriter()) {
-                        ProcessHelper.Execute(batchFile, "", logWriter, errorWriter);
-
-                        result = errorWriter.ToString();
-                    }
-                    result += logWriter.ToString();
-                }
+                var result = DownloadFilesAsync(config, buildFolder).Result;
 
                 Console.WriteLine(result);
-                File.AppendAllText(buildLog,result);
-            }
 
+                if (config.UseMSBuild)
+                {
+                    string batchFileContents = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
+                    batchFileContents += "\"" + buildFolder + "\\source\\" + config.SolutionPath + "\"";
+                    batchFileContents += " /t:Build ";
+                    batchFileContents += " /p:Configuration=" + config.MSBuildConfig;
+
+                    string batchFile = buildFolder + "\\msbuild.bat";
+
+                    File.WriteAllText(batchFile, batchFileContents);
+
+
+                    ProcessHelper.Execute(batchFile);
+
+
+                    // transform...
+
+                    XDTService.Instance.Process(config);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         static async Task<string> DownloadFilesAsync(BuildConfig config, string buildFolder)

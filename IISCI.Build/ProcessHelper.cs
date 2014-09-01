@@ -11,7 +11,7 @@ namespace IISCI.Build
 {
     public class ProcessHelper
     {
-        public static void Execute(
+        public static int Execute(
             string program,
             string arguements,
             StringWriter console,
@@ -53,7 +53,28 @@ namespace IISCI.Build
 
             wait.WaitOne(5 * 60 * 1000);
 
+            return p.ExitCode;
+
         }
- 
+
+
+        internal static void Execute(string batchFile)
+        {
+            int exitCode = 0;
+            using (StringWriter errorWriter = new StringWriter()) {
+                using (StringWriter consoleWriter = new StringWriter())
+                {
+                    exitCode = ProcessHelper.Execute(batchFile, "", consoleWriter, errorWriter);
+
+                    Console.WriteLine(consoleWriter.ToString());
+                }
+                Console.WriteLine(errorWriter.ToString());
+            }
+
+            if (exitCode != 0) {
+                throw new InvalidOperationException("Process.Execute failed !!!");
+            }
+
+        }
     }
 }
