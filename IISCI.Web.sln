@@ -1,11 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISCI.Web", "IISCI.Web\IISCI.Web.csproj", "{DCD420B5-3660-40D8-BA98-B1C314E08759}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A187AF38-557F-4D2C-8B92-763C198266C9} = {A187AF38-557F-4D2C-8B92-763C198266C9}
+		{9BA08987-42E4-413A-9B6E-F8DC35F7C9EB} = {9BA08987-42E4-413A-9B6E-F8DC35F7C9EB}
+		{7A18B8B5-F91D-45CF-94C2-78766BBC2BB1} = {7A18B8B5-F91D-45CF-94C2-78766BBC2BB1}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFSRestAPI", "TFSRestAPI\TFSRestAPI.csproj", "{E3E0EE6D-0585-4624-9E99-5195BC877FF5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A187AF38-557F-4D2C-8B92-763C198266C9} = {A187AF38-557F-4D2C-8B92-763C198266C9}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F018866E-2070-4E9A-940C-ED20A933C2AC}"
 	ProjectSection(SolutionItems) = preProject
@@ -21,6 +29,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{07B4C2
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISCI.Build", "IISCI.Build\IISCI.Build.csproj", "{9BA08987-42E4-413A-9B6E-F8DC35F7C9EB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A187AF38-557F-4D2C-8B92-763C198266C9} = {A187AF38-557F-4D2C-8B92-763C198266C9}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IISCI.Core", "IISCI.Core\IISCI.Core.csproj", "{A187AF38-557F-4D2C-8B92-763C198266C9}"
 EndProject

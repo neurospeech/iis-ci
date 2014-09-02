@@ -2,7 +2,28 @@
     ViewBag.Title = "IISCI";
 }
 
+<script type="text/javascript">
+    ({
+        site: 0,
+        sourceTypes: [
+            { label: 'Git', value: 'git' },
+            { label: 'TFS 2012', value: 'tfs2012' },
+            { label:'Zip-Url', value: 'zipurl' }
+        ],
+        addConnectionString: function (scope, sender) {
+            var items = Atom.get(sender, "items");
+            Atom.add(items, { Name: '', ConnectionString:'', ProviderName: 'System.Data.SqlClient' });
+        },
+        addAppSetting: function (scope, sender) {
+            var items = Atom.get(sender, "items");
+            Atom.add(items, { Key: '', Value: '' });
+        }
+
+    })
+</script>
+
 <div 
+     atom-dock="Fill"
      atom-name="frameView"
      atom-type="AtomFrameView"
      atom-url="main">
@@ -18,6 +39,124 @@
         <tr atom-template="itemTemplate">
             <td atom-text="{$data.Name}"></td>
             <td atom-text="{($data.Bindings).join(', ')}"></td>
+            <td><button atom-event-click="{ {appScope: { site: $data.Id, 'frameView.url':'config'}} }">Config</button></td>
+            <td><a atom-href="{Atom.url('/iis/build',{ id: $data.Id })}" target="_blank">Build Now</a></td>
         </tr>
     </table>
 </div>
+
+<div atom-template-name="config"
+     atom-data="{AtomPromise.json('/iis/getbuildconfig', { id: $appScope.site })}"
+     atom-post-url="{Atom.url('/iis/updatebuildconfig',{ id: $appScope.site })}"
+     atom-success-message="Config saved successfully"
+     atom-next="{ $appScope.frameView.backCommand }"
+     atom-type="AtomForm">
+    <div atom-type="AtomFormLayout">
+
+        <select atom-label="Type:"
+                atom-type="AtomComboBox"
+                atom-items="{$appScope.sourceTypes}"
+                atom-value="$[data.SourceType]"></select>
+
+        <input atom-label="Url:"
+               atom-value="$[data.SourceUrl]" />
+
+        <input atom-field-visible="[/^tfs/i.test($data.SourceType)]"
+               atom-label="TFS Domain:"
+               atom-value="$[data.Domain]" />
+
+        <input atom-label="Username:"
+               atom-value="$[data.Username]" />
+
+        <input atom-label="Password:"
+               type="password"
+               atom-value="$[data.Password]" />
+
+        <input atom-field-visible="[/^tfs/i.test($data.SourceType)]"
+               atom-label="TFS Collection:"
+               atom-value="$[data.Collection]" />
+
+        <input atom-field-visible="[/^tfs/i.test($data.SourceType)]"
+               atom-label="TFS Root Folder"
+               atom-value="$[data.RootFolder]" />
+
+
+        <input atom-label="Solution:"
+               atom-value="$[data.SolutionPath]" />
+
+
+        <input atom-label="Web Project"
+               atom-value="$[data.WebProjectPath]" />
+
+        <span atom-label="Build Solution?"
+              atom-type="AtomYesNoControl"
+              atom-value="$[data.UseMSBuild]"></span>
+
+        <input atom-label="MSBuild Config"
+               placeholder="Debug"
+               atom-value="$[data.MSBuildConfig]" />
+
+        <input atom-label="MSBuild Custom Parameters"
+               placeholder="Optional"
+               atom-value="$[data.MSBuildParameters]" />
+
+        <table atom-label="App Settings:"
+               atom-type="AtomItemsControl"
+               atom-items="[$data.AppSettings]">
+            <thead>
+                <tr>
+                    <td>Key</td>
+                    <td>Value</td>
+                    <td><button atom-event-click="{$appScope.addAppSetting}">+</button></td>
+                </tr>
+            </thead>
+            <tbody atom-presenter="itemsPresenter">
+                <tr atom-template="itemTemplate">
+                    <td><input atom-value="$[data.Key]" /></td>
+                    <td><input atom-value="$[data.Value]" /></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table atom-label="Connection Strings:"
+               atom-type="AtomItemsControl"
+               atom-items="[$data.ConnectionStrings]">
+            <thead>
+                <tr>
+                    <td>Name</td>
+                    <td>Connection String</td>
+                    <td>Provider</td>
+                    <td><button atom-event-click="{$appScope.addConnectionString}">+</button></td>
+                </tr>
+            </thead>
+            <tbody atom-presenter="itemsPresenter">
+                <tr atom-template="itemTemplate">
+                    <td>
+                        <input placeholder="Name"
+                               atom-value="$[data.Name]" />
+                    </td>
+                    <td>
+                        <input placeholder="Connection String"
+                               atom-value="$[data.ConnectionString]" />
+                    </td>
+                    <td>
+                        <input placeholder="Provider (e.g. System.Data.SqlClient)"
+                               atom-value="$[data.ProviderName]" />
+                    </td>
+                    <td><button atom-event-click="{ { confirm:[ 'Are you sure you want to remove?', $owner.templateParent.removeItemCommand ] } }">-</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div>
+            <button type="submit">
+                Save
+            </button>
+            <button atom-event-click="{$appScope.frameView.backCommand}">
+                Cancel
+            </button>
+
+        </div>
+    </div>
+</div>
+

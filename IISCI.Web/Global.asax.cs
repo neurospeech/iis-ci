@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -23,6 +25,12 @@ namespace IISCI.Web
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
+
+            //ValueProviderFactories.Factories
+            //    .Remove(ValueProviderFactories.Factories
+            //                                  .OfType<JsonValueProviderFactory>().Single());
+            //ValueProviderFactories.Factories.Add(new JsonDotNetValueProviderFactory());
         }
     }
+
 }

@@ -23,7 +23,7 @@ namespace IISCI
             info.UseShellExecute = false;
             info.RedirectStandardError = true;
             info.RedirectStandardOutput = true;
-
+            info.WorkingDirectory = System.IO.Path.GetDirectoryName(program);
 
             Process p = new Process();
             p.StartInfo = info;

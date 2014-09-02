@@ -31,16 +31,17 @@ namespace IISCI.Build
                 config.SiteId = id;
             }
             config.BuildFolder = buildFolder;
-            string buildLog = buildFolder + "\\build-log.txt";
+            Execute(config);
+            //string buildLog = buildFolder + "\\build-log.txt";
 
-            TextWriter oldWriter = Console.Out;
-            using (StreamWriter sw = new StreamWriter(buildLog))
-            {
-                Console.SetOut(sw);
-                Execute(config);
-                sw.Flush();
-                Console.SetOut(oldWriter);
-            }
+            //TextWriter oldWriter = Console.Out;
+            //using (StreamWriter sw = new StreamWriter(buildLog))
+            //{
+            //    Console.SetOut(sw);
+            //    Execute(config);
+            //    sw.Flush();
+            //    Console.SetOut(oldWriter);
+            //}
 
         }
 
@@ -83,8 +84,8 @@ namespace IISCI.Build
             catch (Exception ex)
             {
                 Environment.ExitCode = -1;
-                Console.WriteLine(ex.ToString());
-                Console.WriteLine("************************* Deployment failed ***************************");
+                Console.Error.WriteLine(ex.ToString());
+                Console.Error.WriteLine("************************* Deployment failed ***************************");
             }
         }
 

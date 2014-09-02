@@ -1,4 +1,5 @@
 ﻿using Microsoft.Web.Administration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Web.Mvc;
 
 namespace IISCI.Web.Controllers
 {
-    [Authorize(Users="*")]
+    [Authorize]
     public class IISController : Controller
     {
 
@@ -37,7 +38,7 @@ namespace IISCI.Web.Controllers
 
             var sites = ServerManager.Sites.Select(x => new
             {
-                ID = x.Id,
+                Id = x.Id,
                 Name = x.Name,
                 Bindings = x.Bindings.Select(y => y.Host)
             }).ToList();
@@ -56,20 +57,7 @@ namespace IISCI.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult BuildConfig(int id) {
-            BuildConfig config = GetBuildConfig(id);
-            return Json(config, JsonRequestBehavior.AllowGet);
-        }
-
-        public ActionResult UpdateBuildConfig(int id, BuildConfig model) {
-            string path = IISStore + "\\" + id + "\\build-config.json";
-            JsonStorage.WriteFile(model, path);
-            return Json(model);
-        }
-
-
-        private IISCI.BuildConfig GetBuildConfig(int id)
-        {
+        public ActionResult GetBuildConfig(int id) {
             BuildConfig config = null;
             string path = IISStore + "\\" + id + "\\build-config.json";
             if (System.IO.File.Exists(path))
@@ -81,7 +69,18 @@ namespace IISCI.Web.Controllers
                 config = new BuildConfig();
             }
 
-            return config;
+            return Json(config, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult UpdateBuildConfig(int id) {
+            string path = IISStore + "\\" + id + "\\build-config.json";
+
+            string formValue = Request.Form["formModel"];
+
+            var model = JsonConvert.DeserializeObject<BuildConfig>(formValue);
+
+            JsonStorage.WriteFile(model, path);
+            return Json(model);
         }
 
 

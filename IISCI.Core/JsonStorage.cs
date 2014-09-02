@@ -45,6 +45,9 @@ namespace IISCI
 
         public static void WriteFile(object obj, string filePath){
             var fileInfo = new FileInfo(filePath);
+            if (!fileInfo.Directory.Exists) {
+                fileInfo.Directory.Create();
+            }
             if (fileInfo.Exists) {
                 fileInfo.Delete();
             }
