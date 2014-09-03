@@ -22,11 +22,11 @@ namespace IISCI.Git
 
             string gitFolder = config.BuildFolder + "\\git";
 
-            // temporary hack...
-            // git-pull does not work
-            if (Directory.Exists(gitFolder)) {
-                Directory.Delete(gitFolder, true);
-            }
+            //// temporary hack...
+            //// git-pull does not work
+            //if (Directory.Exists(gitFolder)) {
+            //    Directory.Delete(gitFolder, true);
+            //}
 
             if (!Directory.Exists(gitFolder))
             {
@@ -49,8 +49,14 @@ namespace IISCI.Git
                 Remote remote = rep.Network.Remotes["origin"];
                 rep.Fetch(remote.Name, options);
                 var master = rep.Branches["master"];
-                var merge = rep.Merge(master, new Signature("IISCI", "iisci.iisci@iisci.iisci", DateTime.Now));
-                rep.Reset(ResetMode.Hard);
+                rep.Network.Pull(new Signature("IISCI", "IISCI.IISCI@IISCI.IISCI", DateTime.Now), new PullOptions()
+                {
+                    FetchOptions = options,
+                    MergeOptions = new MergeOptions() { 
+                        MergeFileFavor = MergeFileFavor.Theirs,
+                        CommitOnSuccess = true                        
+                    }
+                });
                 Console.WriteLine("Fetch successful");
             }
 
