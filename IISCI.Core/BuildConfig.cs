@@ -70,7 +70,10 @@ namespace IISCI
             }
         }
 
+        public string TriggerKey { get; set; }
+
         public string CustomXDT { get; set; }
+
     }
 
     public class BuildAppSetting {

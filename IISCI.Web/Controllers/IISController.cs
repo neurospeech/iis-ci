@@ -8,7 +8,6 @@ using System.Web.Mvc;
 
 namespace IISCI.Web.Controllers
 {
-    [Authorize]
     public class IISController : Controller
     {
 
@@ -34,7 +33,9 @@ namespace IISCI.Web.Controllers
             }
         }
 
-        public ActionResult Sites() {
+        [Authorize]
+        public ActionResult Sites()
+        {
 
             var sites = ServerManager.Sites.Select(x => new
             {
@@ -46,7 +47,9 @@ namespace IISCI.Web.Controllers
             return Json( sites, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult Build(int id) {
+        [Authorize]
+        public ActionResult Build(int id)
+        {
             string buildPath = IISStore + "\\" + id;
 
             string commandLine = id + " \"" + buildPath + "\"" ;
@@ -57,7 +60,9 @@ namespace IISCI.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetBuildConfig(int id) {
+        [Authorize]
+        public ActionResult GetBuildConfig(int id)
+        {
             BuildConfig config = null;
             string path = IISStore + "\\" + id + "\\build-config.json";
             if (System.IO.File.Exists(path))
@@ -69,10 +74,16 @@ namespace IISCI.Web.Controllers
                 config = new BuildConfig();
             }
 
+            if (string.IsNullOrWhiteSpace(config.TriggerKey))
+            {
+                config.TriggerKey = Convert.ToBase64String(Guid.NewGuid().ToByteArray()) + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            }
             return Json(config, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult UpdateBuildConfig(int id) {
+        [Authorize]
+        public ActionResult UpdateBuildConfig(int id)
+        {
             string path = IISStore + "\\" + id + "\\build-config.json";
 
             string formValue = Request.Form["formModel"];
@@ -83,6 +94,11 @@ namespace IISCI.Web.Controllers
             return Json(model);
         }
 
-
+        public ActionResult BuildTrigger(int id, string key)
+        {
+            string path = IISStore + "\\" + id + "\\build-config.json";
+            var model = JsonStorage.ReadFile<BuildConfig>(path);
+            return Build(id);
+        }
     }
 }

@@ -17,6 +17,9 @@
         addAppSetting: function (scope, sender) {
             var items = Atom.get(sender, "items");
             Atom.add(items, { Key: '', Value: '' });
+        },
+        buildTrigger: function (id, key) {
+
         }
 
     })
@@ -147,6 +150,8 @@
                 </tr>
             </tbody>
         </table>
+
+        <input atom-value="[buildTrigger($appScope.site,$data.TriggerKey)]"/>
 
         <div>
             <button type="submit">
