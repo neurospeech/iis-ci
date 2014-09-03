@@ -19,7 +19,9 @@
             Atom.add(items, { Key: '', Value: '' });
         },
         buildTrigger: function (id, key) {
-
+            if (!key)
+                return "";
+            return location.protocol + "://" + location.host + (location.port ? (":" + location.port) : "") + "/iis/buildtrigger/" + id + "/" + key;
         }
 
     })

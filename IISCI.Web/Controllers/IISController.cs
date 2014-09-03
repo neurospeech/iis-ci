@@ -76,7 +76,7 @@ namespace IISCI.Web.Controllers
 
             if (string.IsNullOrWhiteSpace(config.TriggerKey))
             {
-                config.TriggerKey = Convert.ToBase64String(Guid.NewGuid().ToByteArray()) + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+                config.TriggerKey = ( Convert.ToBase64String(Guid.NewGuid().ToByteArray()) + Convert.ToBase64String(Guid.NewGuid().ToByteArray())).Replace("=","").Replace("/","").Replace("\\","");
             }
             return Json(config, JsonRequestBehavior.AllowGet);
         }
