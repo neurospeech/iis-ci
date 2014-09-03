@@ -20,35 +20,43 @@ namespace IISCI.Git
         public Task<List<ISourceItem>> FetchAllFiles(BuildConfig config)
         {
 
-            DirectoryInfo gitFolder = new DirectoryInfo(config.BuildFolder + "\\git");
-            if (!gitFolder.Exists)
+            string gitFolder = config.BuildFolder + "\\git";
+
+            // temporary hack...
+            // git-pull does not work
+            if (Directory.Exists(gitFolder)) {
+                Directory.Delete(gitFolder, true);
+            }
+
+            if (!Directory.Exists(gitFolder))
             {
-                gitFolder.Create();
+                Directory.CreateDirectory(gitFolder);
 
 
                 Console.WriteLine("Cloning repository " + config.SourceUrl);
 
                 CloneOptions clone = new CloneOptions();
                 clone.CredentialsProvider = CredentialsHandler;
-                var rep = Repository.Clone(config.SourceUrl, gitFolder.FullName, clone);
+                var rep = Repository.Clone(config.SourceUrl, gitFolder, clone);
 
                 Console.WriteLine("Repository clone successful");
             }
             else {
                 Console.WriteLine("Fetching remote Repository");
-                var rep = new Repository(gitFolder.FullName);
+                var rep = new Repository(gitFolder);
                 FetchOptions options = new FetchOptions();
                 options.CredentialsProvider = CredentialsHandler;
                 Remote remote = rep.Network.Remotes["origin"];
                 rep.Fetch(remote.Name, options);
                 var master = rep.Branches["master"];
                 var merge = rep.Merge(master, new Signature("IISCI", "iisci.iisci@iisci.iisci", DateTime.Now));
+                rep.Reset(ResetMode.Hard);
                 Console.WriteLine("Fetch successful");
             }
 
             List<ISourceItem> files = new List<ISourceItem>();
 
-            EnumerateFiles(gitFolder, files, "" );
+            EnumerateFiles( new DirectoryInfo(gitFolder), files, "" );
 
 
             Parallel.ForEach(files, file =>
