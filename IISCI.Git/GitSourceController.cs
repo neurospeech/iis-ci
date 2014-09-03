@@ -41,7 +41,8 @@ namespace IISCI.Git
                 options.CredentialsProvider = CredentialsHandler;
                 Remote remote = rep.Network.Remotes["origin"];
                 rep.Fetch(remote.Name, options);
-                rep.Reset(ResetMode.Hard);
+                var master = rep.Branches["master"];
+                var merge = rep.Merge(master, new Signature("IISCI", "iisci.iisci@iisci.iisci", DateTime.Now));
                 Console.WriteLine("Fetch successful");
             }
 
