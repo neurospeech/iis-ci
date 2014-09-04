@@ -39,7 +39,7 @@ namespace TFSRestAPI
             {
                 handler.CookieContainer = cookies;
                 handler.Credentials = credentials;
-                handler.UseDefaultCredentials = true;
+                //handler.UseDefaultCredentials = true;
                 handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 handler.UseCookies = true;
                 using (var client = new HttpClient(handler))
@@ -58,7 +58,7 @@ namespace TFSRestAPI
                     if (!r.IsSuccessStatusCode)
                     {
                         var content = await r.Content.ReadAsStringAsync();
-                        throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, url + "\r\n" + content);
+                        throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, requestUrl + "\r\n" + content);
                     }
 
                     return await r.Content.ReadAsStringAsync();
@@ -72,7 +72,7 @@ namespace TFSRestAPI
             {
                 handler.CookieContainer = cookies;
                 handler.Credentials = credentials;
-                handler.UseDefaultCredentials = true;
+                //handler.UseDefaultCredentials = true;
                 handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                 handler.UseCookies = true;
                 using (var client = new HttpClient(handler))
@@ -86,7 +86,7 @@ namespace TFSRestAPI
                     if (!r.IsSuccessStatusCode)
                     {
                         var content = await r.Content.ReadAsStringAsync();
-                        throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, url + "\r\n" + content);
+                        throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, requestUrl + "\r\n" + content);
                     }
 
                     var input = await r.Content.ReadAsStreamAsync();

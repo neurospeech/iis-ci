@@ -83,6 +83,7 @@ namespace IISCI.Web.Controllers
         }
 
         [Authorize]
+        [ValidateInput(false)]
         public ActionResult UpdateBuildConfig(int id)
         {
             string path = IISStore + "\\" + id + "\\build-config.json";

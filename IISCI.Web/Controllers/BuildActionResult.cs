@@ -40,6 +40,8 @@ namespace IISCI.Web.Controllers
             Response.WriteLine("}");
             Response.WriteLine("</script><body><div id='logger'>");
 
+            Response.Flush();
+
             int n = ProcessHelper.Execute(
                 executable,
                 parameters,
