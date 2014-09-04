@@ -14,7 +14,7 @@ namespace IISCI.Build
         public static IISManager Instance = new IISManager();
 
 
-        internal void DeployFiles(BuildConfig config)
+        internal void DeployFiles(BuildConfig config, string webConfig)
         {
             using (ServerManager mgr = new ServerManager()) {
                 Site site = null;
@@ -41,6 +41,14 @@ namespace IISCI.Build
                     DeployWebProject(config, rootFolder);
                 }
 
+                FileInfo configFile = new FileInfo(rootFolder + "\\Web.Config");
+                if (configFile.Exists)
+                {
+                    configFile.Delete();
+                }
+                
+                File.WriteAllText(configFile.FullName, webConfig , UnicodeEncoding.Unicode);
+
                 site.Start();
             }
         }
@@ -63,7 +71,10 @@ namespace IISCI.Build
                 if (!Directory.Exists(targetDir)) {
                     Directory.CreateDirectory(targetDir);
                 }
-                File.Copy(sourcePath, targetPath, true);
+                if (File.Exists(sourcePath))
+                {
+                    File.Copy(sourcePath, targetPath, true);
+                }
             }
 
             dir = new DirectoryInfo(dir.FullName + "\\bin");

@@ -60,7 +60,7 @@
             <tr atom-template="itemTemplate">
                 <td atom-text="{$data.Name}"></td>
                 <td atom-text="{($data.Bindings).join(', ')}"></td>
-                <td atom-class="{ { error: $data.LastBuild.Error, success: $data.LastBuild.Time } }">
+                <td atom-class="{ { error: $data.LastBuild.Error, success: !$data.LastBuild.ExitCode && $data.LastBuild.Time } }">
                     <span 
                           class="success-span">Success</span>
                     <button 

@@ -20,7 +20,7 @@ namespace TFSRestAPI
         private string baseUrl;
 
         System.Net.CookieContainer cookies = new CookieContainer();
-        NetworkCredential credentials;
+        CredentialCache credentials;
 
         public TFSRestClient()
         {
@@ -30,7 +30,9 @@ namespace TFSRestAPI
         {
             baseUrl = config.SourceUrl;
 
-            credentials = new NetworkCredential(config.Username, config.Password, config.Domain);
+            //credentials = new NetworkCredential(config.Username, config.Password, config.Domain);
+            credentials = new CredentialCache();
+            credentials.Add(new Uri(config.SourceUrl), "NTLM", new NetworkCredential(config.Username, config.Password, config.Domain));
         }
 
         private async Task<string> Invoke(string url, object p, HttpMethod method)

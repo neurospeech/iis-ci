@@ -80,8 +80,6 @@ namespace IISCI.Build
 
                 var result = DownloadFilesAsync(config, buildFolder).Result;
 
-                Console.WriteLine(result);
-
                 if (config.UseMSBuild)
                 {
                     string batchFileContents = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
@@ -99,9 +97,9 @@ namespace IISCI.Build
 
                     // transform...
 
-                    XDTService.Instance.Process(config);
+                    string webConfig = XDTService.Instance.Process(config);
 
-                    IISManager.Instance.DeployFiles(config);
+                    IISManager.Instance.DeployFiles(config,webConfig);
 
                     Console.WriteLine("+++++++++++++++++++++ Deployment Successful !!! +++++++++++++++++++++");
                 }
@@ -117,53 +115,35 @@ namespace IISCI.Build
 
         static async Task<string> DownloadFilesAsync(BuildConfig config, string buildFolder)
         {
-            try
+            using (ISourceController ctrl = GetController(config))
             {
-                using (ISourceController ctrl = GetController(config))
+                using (LocalRepository rep = new LocalRepository(buildFolder))
                 {
-                    using (LocalRepository rep = new LocalRepository(buildFolder))
+                    ctrl.Initialize(config);
+
+                    List<ISourceItem> remoteItems = await ctrl.FetchAllFiles(config);
+                    var changes = rep.GetChanges(remoteItems);
+
+                    var updatedFiles = changes.Where(x => x.Type == ChangeType.Added || x.Type == ChangeType.Modified)
+                        .Select(x => x.RepositoryFile).Where(x => !x.IsDirectory).ToList();
+
+                    foreach (var slice in updatedFiles.Slice(25))
                     {
-                        return await SyncAsync(ctrl,config, rep);
+                        var downloadList = slice.Select(x =>
+                        {
+                            string filePath = rep.LocalFolder + x.Folder + "/" + x.Name;
+                            System.IO.FileInfo finfo = new System.IO.FileInfo(filePath);
+                            if (!finfo.Directory.Exists)
+                            {
+                                finfo.Directory.Create();
+                            }
+                            return ctrl.DownloadAsync(config, x, filePath);
+                        });
+
+                        await Task.WhenAll(downloadList);
+                        rep.UpdateFiles(slice);
                     }
                 }
-            }
-            catch (Exception ex) {
-                return ex.ToString();
-            }
-        }
-
-        private static async Task<string> SyncAsync(ISourceController ctrl, BuildConfig config, LocalRepository rep)
-        {
-            ctrl.Initialize(config);
-
-
-            try
-            {
-                List<ISourceItem> remoteItems = await ctrl.FetchAllFiles(config);
-                var changes = rep.GetChanges(remoteItems);
-
-                var updatedFiles = changes.Where(x => x.Type == ChangeType.Added || x.Type == ChangeType.Modified)
-                    .Select(x => x.RepositoryFile).Where(x => !x.IsDirectory).ToList();
-
-                foreach (var slice in updatedFiles.Slice(10))
-                {
-                    var downloadList = slice.Select(x => {
-                        string filePath = rep.LocalFolder + x.Folder + "/" + x.Name;
-                        System.IO.FileInfo finfo = new System.IO.FileInfo(filePath);
-                        if (!finfo.Directory.Exists)
-                        {
-                            finfo.Directory.Create();
-                        }
-                        return ctrl.DownloadAsync(config, x, filePath); 
-                    });
-
-                    await Task.WhenAll(downloadList);
-                    rep.UpdateFiles(slice);
-                }
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
             }
             return null;
         }

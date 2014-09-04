@@ -14,7 +14,7 @@ namespace IISCI.Build
 
         public static XDTService Instance = new XDTService();
 
-        public void Process(BuildConfig config){
+        public string Process(BuildConfig config){
             string buildFolder = config.BuildFolder;
 
             string buildXDT = buildFolder + "\\build.xdt";
@@ -22,20 +22,26 @@ namespace IISCI.Build
 
             File.WriteAllText(buildXDT, CreateXDT(config));
 
-            string webConfig = Path.GetDirectoryName( config.BuildFolder + "\\Source\\" + config.WebProjectPath )  + "\\web.config";
+            string webConfigPath = Path.GetDirectoryName( config.BuildFolder + "\\Source\\" + config.WebProjectPath )  + "\\web.config";
 
-            if (File.Exists(webConfig))
+            string webConfig = null;
+
+            if (File.Exists(webConfigPath))
             {
-                Transform(webConfig, buildXDT);
+                webConfig = File.ReadAllText(webConfigPath);
+
+                webConfig = Transform(webConfig, buildXDT);
 
                 if (config.CustomXDT != null)
                 {
                     string customXDT = buildFolder + "\\custom.xdt";
                     File.WriteAllText(customXDT, config.CustomXDT);
-                    Transform(webConfig, customXDT);
+                    webConfig = Transform(webConfig, customXDT);
                 }
+
             }
-            
+
+            return webConfig;
         }
 
 
@@ -74,21 +80,21 @@ namespace IISCI.Build
             return doc.ToString(SaveOptions.OmitDuplicateNamespaces);
         }
 
-        private void Transform(string filePath, string xdtPath) 
+        private string Transform(string inputXml, string xdtPath) 
         {
-            Microsoft.Web.XmlTransform.XmlTransformation xtr = new Microsoft.Web.XmlTransform.XmlTransformation(xdtPath);
-
-            XmlDocument doc = new XmlDocument();
-            using (var fs = File.OpenRead(filePath))
+            using (StringWriter outStream = new StringWriter())
             {
-                doc.Load(fs);
+                Microsoft.Web.XmlTransform.XmlTransformation xtr = new Microsoft.Web.XmlTransform.XmlTransformation(xdtPath);
+
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(inputXml);
+
+                xtr.Apply(doc);
+
+                doc.Save(outStream);
+
+                return outStream.ToString();
             }
-
-            xtr.Apply(doc);
-
-            File.Delete(filePath);
-
-            doc.Save(filePath);
             
         }
 
