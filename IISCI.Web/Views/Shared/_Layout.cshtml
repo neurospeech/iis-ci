@@ -11,6 +11,7 @@
     <script src="~/Scripts/jquery-1.11.1.min.js"></script>
     <script src="~/Scripts/atoms.min.js"></script>
     <link href="~/Style/atoms/atoms.css" rel="stylesheet" />
+    <link href="~/Content/Site.min.css" rel="stylesheet" />
 
 </head>
 <body>
@@ -18,11 +19,15 @@
         <div atom-dock="Top" style="height:40px">
             <h2>IIS-CI</h2>
         </div>
+        @if (!Request.IsSecureConnection)
+        {
+            <h1 atom-dock="Top" style="height:40px;background-color:red;color:white;">
+                !!! Warning - Please do not use this site without SSL
+            </h1>
+        }
         @RenderBody()
-        <div 
-             atom-dock="Bottom" style="height:20px">
-            <a 
-               href="http://atomsjs.neurospeech.com" 
+        <div atom-dock="Bottom" style="height:20px">
+            <a href="http://atomsjs.neurospeech.com"
                target="_blank"
                style="position:absolute; right:10px;top:3px;">Powered by Atoms.js</a>
         </div>

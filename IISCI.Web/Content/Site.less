@@ -1,0 +1,98 @@
+﻿body {
+}
+
+.site-table{
+    width:100%;
+    thead{
+        tr{
+            background-color:darkslategray;
+            color:white;
+            font-weight:bold;
+        }
+    }
+    th{
+        text-align:left;
+        padding:2px;
+    }
+    td{
+        text-align:left;
+        padding:2px;
+
+        .success-span{
+            display:none;
+        }
+
+        .failed-button{
+            display:none;
+        }
+
+        &.success{
+            .success-span{
+                display:inline-block;
+                color:green;
+            }
+        }
+        &.error{
+            .failed-button{
+                display:inline-block;
+                background-color:red;
+                color:white;
+            }
+        }
+    }
+    tbody{
+        tr:hover{
+            background-color:lightgoldenrodyellow;
+        }
+    }
+}
+
+.data-form{
+    table{
+        width:97%;
+    }
+    input{
+        width:95%;
+    }
+    td.atom-form-label{
+        max-width:200px;
+        width:200px;
+    }
+}
+
+table.connection-strings{
+    .name{
+        width:150px;
+    }
+
+    .connection-string{
+
+    }
+
+    .provider{
+        width:200px;
+    }
+
+    .command{
+        width:30px;
+        text-align:right;
+        button{
+            width:30px;
+        }
+    }
+}
+
+table.app-settings{
+    .key{
+        width:150px;
+    }
+
+    .command{
+        width:30px;
+        text-align:right;
+        button{
+            width:30px;
+        }
+    }
+
+}

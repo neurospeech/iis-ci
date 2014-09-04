@@ -1,7 +1,7 @@
 IIS-CI
 ======
 
-IIS Continuous Integration from Source Control.
+IIS Continuous Integration/Deployment from Git & TFS Source Control.
 
 Features
 --------
@@ -36,14 +36,15 @@ Installation
 ------------
 
 1. Create a website in IIS, make sure Windows Authentication is enabled with NTLM being first provider.
-2. Set LocalSystem as Application Pool Identity.
-3. Copy "C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\*" files on the server
-4. Open the website, you will see list of IIS sites with config and build options.
-5. You can configure the source type as Git or TFS, Git should use https transport only.
-6. Enter username/passwords for remote Git
-7. Specify Solution Path as relative path of .sln file within the git source code without front slash.
-8. Specify Web Project Path as relative path of .sln file within the git source code without front slash.
-9. Add AppSettings you would want to overwrite after deployment.
-10. Add ConnectionStrings you would want to overwrite after deployment.
-11. After config is saved correctly, click on Build link.
+2. Enable Anonymous Authentication for Triggers to work.
+3. Set LocalSystem as Application Pool Identity.
+4. Copy "C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\*" files on the server
+5. Open the website, you will see list of IIS sites with config and build options.
+6. You can configure the source type as Git or TFS, Git should use https transport only.
+7. Enter username/passwords for remote Git
+8. Specify Solution Path as relative path of .sln file within the git source code without front slash.
+9. Specify Web Project Path as relative path of .sln file within the git source code without front slash.
+10. Add AppSettings you would want to overwrite after deployment.
+11. Add ConnectionStrings you would want to overwrite after deployment.
+12. After config is saved correctly, click on Build link.
 

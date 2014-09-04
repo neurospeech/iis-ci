@@ -119,6 +119,12 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Content Include="Content\Site.css">
+      <DependentUpon>Site.less</DependentUpon>
+    </Content>
+    <Content Include="Content\Site.min.css">
+      <DependentUpon>Site.css</DependentUpon>
+    </Content>
     <Content Include="Global.asax" />
     <Content Include="Scripts\atoms.min.js" />
     <Content Include="Scripts\atoms\plugins\entity-framework\entity-context.js" />
@@ -129,6 +135,10 @@
     <Content Include="Scripts\atoms\plugins\upload\atom-uploader.css" />
     <Content Include="Scripts\atoms\plugins\upload\atom-uploader.css.map" />
     <Content Include="Scripts\atoms\plugins\entity-framework\entity.css.map" />
+    <Content Include="Content\Site.less" />
+    <Content Include="Content\Site.css.map">
+      <DependentUpon>Site.css</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-1.11.1.intellisense.js" />
     <Content Include="Scripts\app.js" />
     <Content Include="Scripts\atoms-debug.js" />

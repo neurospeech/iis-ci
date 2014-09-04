@@ -68,10 +68,18 @@ namespace IISCI.Web.Controllers
             BuildConfig config = JsonStorage.ReadFileOrDefault<BuildConfig>(path);
             if (string.IsNullOrWhiteSpace(config.TriggerKey))
             {
-                config.TriggerKey = Convert.ToBase64String(Guid.NewGuid().ToByteArray()) + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+                config.TriggerKey = CreateBuildKey();
                 JsonStorage.WriteFile(config, path);
             }
             return Json(config, JsonRequestBehavior.AllowGet);
+        }
+
+        private string CreateBuildKey() {
+            var key = Convert.ToBase64String(Guid.NewGuid().ToByteArray()) 
+                + Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+                + Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+                + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            return key.Replace("=", "").Replace("+", "").Replace("\\", "").Replace("/", "");
         }
 
         [Authorize]
@@ -87,10 +95,17 @@ namespace IISCI.Web.Controllers
             return Json(model);
         }
 
+        [Authorize]
+        public ActionResult GenerateBuildKey(){
+            return Json(CreateBuildKey(), JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult BuildTrigger(int id, string key)
         {
             string path = IISStore + "\\" + id + "\\build-config.json";
             var model = JsonStorage.ReadFile<BuildConfig>(path);
+            if (model.TriggerKey != key)
+                throw new UnauthorizedAccessException();
             return Build(id);
         }
     }

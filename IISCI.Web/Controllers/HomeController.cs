@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace IISCI.Web.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
 
