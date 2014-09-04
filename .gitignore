@@ -13,3 +13,4 @@ packages/*
 *.user
 /IISCI.Git/bin/Debug
 /IISCI.Git/obj/Debug
+/publish

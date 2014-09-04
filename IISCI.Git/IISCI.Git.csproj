@@ -44,6 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\IISCI.Core\Properties\AssemblyVersion.cs">
+      <Link>Properties\AssemblyVersion.cs</Link>
+    </Compile>
     <Compile Include="GitSourceController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
