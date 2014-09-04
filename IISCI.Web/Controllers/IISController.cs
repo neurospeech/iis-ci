@@ -41,7 +41,8 @@ namespace IISCI.Web.Controllers
             {
                 Id = x.Id,
                 Name = x.Name,
-                Bindings = x.Bindings.Select(y => y.Host)
+                Bindings = x.Bindings.Select(y => y.Host),
+                LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(IISStore + "\\" + x.Id + "\\last-build.json")
             }).ToList();
 
             return Json( sites, JsonRequestBehavior.AllowGet);
@@ -63,20 +64,12 @@ namespace IISCI.Web.Controllers
         [Authorize]
         public ActionResult GetBuildConfig(int id)
         {
-            BuildConfig config = null;
             string path = IISStore + "\\" + id + "\\build-config.json";
-            if (System.IO.File.Exists(path))
-            {
-                config = JsonStorage.ReadFile<BuildConfig>(path);
-            }
-            else
-            {
-                config = new BuildConfig();
-            }
-
+            BuildConfig config = JsonStorage.ReadFileOrDefault<BuildConfig>(path);
             if (string.IsNullOrWhiteSpace(config.TriggerKey))
             {
                 config.TriggerKey = Convert.ToBase64String(Guid.NewGuid().ToByteArray()) + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+                JsonStorage.WriteFile(config, path);
             }
             return Json(config, JsonRequestBehavior.AllowGet);
         }

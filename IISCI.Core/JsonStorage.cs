@@ -62,5 +62,14 @@ namespace IISCI
             }
         }
 
+        public static T ReadFileOrDefault<T>(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return Activator.CreateInstance<T>();
+            using (StreamReader sr = new StreamReader(filePath))
+            {
+                return Read<T>(sr);
+            }
+        }
     }
 }

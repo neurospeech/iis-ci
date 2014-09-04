@@ -39,12 +39,27 @@
 
     <table atom-type="AtomItemsControl"
          atom-items="{AtomPromise.json('/iis/sites')}">
-        <tr atom-template="itemTemplate">
-            <td atom-text="{$data.Name}"></td>
-            <td atom-text="{($data.Bindings).join(', ')}"></td>
-            <td><button atom-event-click="{ {appScope: { site: $data.Id, 'frameView.url':'config'}} }">Config</button></td>
-            <td><a atom-href="{Atom.url('/iis/build',{ id: $data.Id })}" target="_blank">Build Now</a></td>
-        </tr>
+        <thead>
+            <tr>
+                <th>Site</th>
+                <th>Bindings</th>
+                <th>Last Build</th>
+                <th>Build Time</th>
+                <th>Config</th>
+                <th>Build</th>
+            </tr>
+        </thead>
+        <tbody atom-presenter="itemsPresenter">
+            <tr atom-template="itemTemplate">
+                <td atom-text="{$data.Name}"></td>
+                <td atom-text="{($data.Bindings).join(', ')}"></td>
+                <td style-color="{$data.LastBuild.Error ? 'red' : 'green'}"
+                    atom-text="{ $data.LastBuild.Error ? 'Failed' : 'Success' }"></td>
+                <td atom-text="{ $data.LastBuild.Time ? AtomDate.toDateTimeString($data.LastBuild.Time) : 'n/a' }"></td>
+                <td><button atom-event-click="{ {appScope: { site: $data.Id, 'frameView.url':'config'}} }">Config</button></td>
+                <td><a atom-href="{Atom.url('/iis/build',{ id: $data.Id })}" target="_blank">Build Now</a></td>
+            </tr>
+        </tbody>
     </table>
 </div>
 

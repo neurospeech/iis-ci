@@ -31,17 +31,43 @@ namespace IISCI.Build
                 config.SiteId = id;
             }
             config.BuildFolder = buildFolder;
-            Execute(config);
-            //string buildLog = buildFolder + "\\build-log.txt";
 
-            //TextWriter oldWriter = Console.Out;
-            //using (StreamWriter sw = new StreamWriter(buildLog))
-            //{
-            //    Console.SetOut(sw);
-            //    Execute(config);
-            //    sw.Flush();
-            //    Console.SetOut(oldWriter);
-            //}
+            string log;
+            string error;
+
+            TextWriter oldWriter = Console.Out;
+            using (StringWriter outWriter = new StringWriter())
+            {
+                Console.SetOut(outWriter);
+                var oldError = Console.Error;
+                using (StringWriter errorWriter = new StringWriter())
+                {
+                    Console.SetError(errorWriter);
+                    Execute(config);
+                    errorWriter.Flush();
+                    Console.SetError(oldError);
+                    error = errorWriter.ToString();
+                }
+                outWriter.Flush();
+                Console.SetOut(oldWriter);
+                log = outWriter.ToString();
+            }
+
+            var lastBuild = new LastBuild(){ 
+                Time = DateTime.UtcNow,
+                ExitCode =Environment.ExitCode,
+                Log = log,
+                Error = error
+            };
+
+            JsonStorage.WriteFile(lastBuild, buildFolder + "\\last-build.json");
+
+            if (!string.IsNullOrWhiteSpace(log)) {
+                Console.Out.Write(log);
+            }
+            if (!string.IsNullOrWhiteSpace(error)) {
+                Console.Error.Write(error);
+            }
 
         }
 

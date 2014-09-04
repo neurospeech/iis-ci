@@ -53,6 +53,7 @@
     <Compile Include="ISourceController.cs" />
     <Compile Include="ISourceItem.cs" />
     <Compile Include="JsonStorage.cs" />
+    <Compile Include="LastBuild.cs" />
     <Compile Include="LocalRepository.cs" />
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
