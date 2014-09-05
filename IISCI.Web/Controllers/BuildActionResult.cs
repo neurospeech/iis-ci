@@ -37,6 +37,7 @@ namespace IISCI.Web.Controllers
             Response.WriteLine("line.textContent = txt;");
             Response.WriteLine("if(error) { line.style.color= 'red'; }");
             Response.WriteLine("document.getElementById('logger').appendChild(line);");
+            Response.WriteLine("setTimeout( function(){  line.scrollIntoView(); }, 100);");
             Response.WriteLine("}");
             Response.WriteLine("</script><body><div id='logger'>");
 
