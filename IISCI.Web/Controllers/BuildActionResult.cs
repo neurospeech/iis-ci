@@ -17,6 +17,8 @@ namespace IISCI.Web.Controllers
             parameters = cmdLine;
         }
 
+        private static List<string> BuildInProgress = new List<string>();
+
         public override void ExecuteResult(ControllerContext context)
         {
             var HttpContext = context.HttpContext;
@@ -24,38 +26,54 @@ namespace IISCI.Web.Controllers
             var Server = HttpContext.Server;
             var Response = HttpContext.Response.Output;
 
-            var executable = Server.MapPath("/") + "\\bin\\IISCI.build.exe";
-
-            var p = Process.GetProcesses().FirstOrDefault(x => string.Equals(x.StartInfo.FileName, executable, StringComparison.OrdinalIgnoreCase));
-            if (p != null) {
-                Response.WriteLine("Deployment already in progress, try after sometime.");
-                return;
+            lock (BuildInProgress)
+            {
+                if (BuildInProgress.Contains(parameters))
+                {
+                    Response.WriteLine("Build already in progress");
+                    Response.Flush();
+                    return;
+                }
+                BuildInProgress.Add(parameters);
             }
-            Response.WriteLine("<html><script type='text/javascript'>");
-            Response.WriteLine("function log(txt,error){");
-            Response.WriteLine("var line = document.createElement('PRE');");
-            Response.WriteLine("line.textContent = txt;");
-            Response.WriteLine("if(error) { line.style.color= 'red'; }");
-            Response.WriteLine("document.getElementById('logger').appendChild(line);");
-            Response.WriteLine("setTimeout( function(){  line.scrollIntoView(); }, 100);");
-            Response.WriteLine("}");
-            Response.WriteLine("</script><body><div id='logger'>");
 
-            Response.Flush();
+            try
+            {
 
-            int n = ProcessHelper.Execute(
-                executable,
-                parameters,
-                s =>
+                var executable = Server.MapPath("/") + "\\bin\\IISCI.build.exe";
+
+                Response.WriteLine("<html><script type='text/javascript'>");
+                Response.WriteLine("function log(txt,error){");
+                Response.WriteLine("var line = document.createElement('PRE');");
+                Response.WriteLine("line.textContent = txt;");
+                Response.WriteLine("if(error) { line.style.color= 'red'; }");
+                Response.WriteLine("document.getElementById('logger').appendChild(line);");
+                Response.WriteLine("setTimeout( function(){  line.scrollIntoView(); }, 100);");
+                Response.WriteLine("}");
+                Response.WriteLine("</script><body><div id='logger'>");
+
+                Response.Flush();
+
+                int n = ProcessHelper.Execute(
+                    executable,
+                    parameters,
+                    s =>
+                    {
+                        Response.WriteLine(Log(s, false));
+                        Response.Flush();
+                    },
+                    s =>
+                    {
+                        Response.WriteLine(Log(s, true));
+                        Response.Flush();
+                    });
+            }
+            finally {
+                lock (BuildInProgress)
                 {
-                    Response.WriteLine(Log(s,false));
-                    Response.Flush();
-                },
-                s =>
-                {
-                    Response.WriteLine(Log(s,true));
-                    Response.Flush();
-                });
+                    BuildInProgress.Remove(parameters);
+                }
+            }
 
         }
 
