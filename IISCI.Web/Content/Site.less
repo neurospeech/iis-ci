@@ -1,6 +1,26 @@
 ﻿body {
 }
 
+.header{
+    height:70px;
+}
+
+.footer{
+    height:30px;
+    background-color:#F0F0F0;
+
+    a{
+        color:forestgreen;
+        position:absolute; 
+        right:10px;
+        top:5px;
+    }
+
+    a:hover{
+        color:lawngreen;
+    }
+}
+
 .site-table{
     width:100%;
     thead{
@@ -45,6 +65,26 @@
             background-color:lightgoldenrodyellow;
         }
     }
+
+    .last-build{
+        width:70px;
+    }
+
+    .build-time{
+        width:120px;
+    }
+
+    .config{
+        width:70px;
+    }
+
+    .build{
+        width:100px;
+    }
+
+    td.button{
+        text-align:center;
+    }
 }
 
 .data-form{
@@ -58,41 +98,48 @@
         max-width:200px;
         width:200px;
     }
-}
 
-table.connection-strings{
-    .name{
-        width:150px;
-    }
 
-    .connection-string{
+    table.connection-strings{
+        .name{
+            width:150px;
+        }
 
-    }
+        .connection-string{
 
-    .provider{
-        width:200px;
-    }
+        }
 
-    .command{
-        width:30px;
-        text-align:right;
-        button{
+        .provider{
+            width:200px;
+        }
+
+        .command{
             width:30px;
+            text-align:right;
+            button{
+                width:30px;
+            }
         }
     }
-}
 
-table.app-settings{
-    .key{
-        width:150px;
+    table.app-settings{
+        .key{
+            width:150px;
+        }
+
+        .command{
+            width:30px;
+            text-align:right;
+            button{
+                width:30px;
+            }
+        }
+
     }
 
-    .command{
-        width:30px;
-        text-align:right;
-        button{
-            width:30px;
-        }
+    .custom-xdt{
+        width:95%;
+        height:180px;
     }
 
 }

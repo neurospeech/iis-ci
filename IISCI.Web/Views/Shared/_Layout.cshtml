@@ -16,8 +16,8 @@
 </head>
 <body>
     <div atom-type="AtomApplication">
-        <div atom-dock="Top" style="height:40px">
-            <h2>IIS-CI</h2>
+        <div class="header" atom-dock="Top">
+            <h1>IIS Continuous Integration</h1>
         </div>
         @if (!Request.IsSecureConnection)
         {
@@ -26,10 +26,9 @@
             </h1>
         }
         @RenderBody()
-        <div atom-dock="Bottom" style="height:20px">
+        <div class="footer" atom-dock="Bottom">
             <a href="http://atomsjs.neurospeech.com"
-               target="_blank"
-               style="position:absolute; right:10px;top:3px;">Powered by Atoms.js</a>
+               target="_blank">Powered by Atoms.js</a>
         </div>
     </div>
 </body>

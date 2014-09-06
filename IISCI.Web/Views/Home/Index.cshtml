@@ -50,17 +50,17 @@
             <tr>
                 <th>Site</th>
                 <th>Bindings</th>
-                <th>Last Build</th>
-                <th>Build Time</th>
-                <th>Config</th>
-                <th>Build</th>
+                <th class="last-build">Last Build</th>
+                <th class="build-time">Build Time</th>
+                <th class="config">Config</th>
+                <th class="build">Build</th>
             </tr>
         </thead>
         <tbody atom-presenter="itemsPresenter">
             <tr atom-template="itemTemplate">
                 <td atom-text="{$data.Name}"></td>
                 <td atom-text="{($data.Bindings).join(', ')}"></td>
-                <td atom-class="{ { error: $data.LastBuild.Error, success: !$data.LastBuild.ExitCode && $data.LastBuild.Time } }">
+                <td class="button" atom-class="{ { error: $data.LastBuild.Error, success: !$data.LastBuild.ExitCode && $data.LastBuild.Time } }">
                     <span 
                           class="success-span">Success</span>
                     <button 
@@ -68,9 +68,12 @@
                             atom-event-click="{ {appScope: { build:$data, 'frameView.url':'error' }} }"                            
                             >Failed</button>
                 </td>
-                <td atom-text="{ $data.LastBuild.Time ? AtomDate.toDateTimeString($data.LastBuild.Time) : 'n/a' }"></td>
-                <td><button atom-event-click="{ {appScope: { site: $data.Id, 'frameView.url':'config'}} }">Config</button></td>
-                <td><a atom-href="{Atom.url('/iis/build',{ id: $data.Id })}" target="_blank">Build Now</a></td>
+                <td class="button" atom-text="{ $data.LastBuild.Time ? AtomDate.toDateTimeString($data.LastBuild.Time) : 'n/a' }"></td>
+                <td class="button"><button atom-event-click="{ {appScope: { site: $data.Id, 'frameView.url':'config'}} }">Config</button></td>
+                <td class="button">
+                    <a atom-href="{Atom.url('/iis/build',{ id: $data.Id })}"
+                       target="_blank"><button>Build Now</button></a>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -94,7 +97,8 @@
      atom-post-url="{Atom.url('/iis/updatebuildconfig',{ id: $appScope.site })}"
      atom-success-message="Config saved successfully"
      atom-next="{ $appScope.frameView.backCommand }"
-     atom-type="AtomForm">
+     atom-type="AtomForm"
+     style="overflow:auto">
     <div atom-type="AtomFormLayout">
 
         <select atom-label="Source"
@@ -122,15 +126,28 @@
 
         <input atom-field-visible="[/^tfs/i.test($data.SourceType)]"
                atom-label="TFS Root Folder"
+               placeholder="$/ ... (path must start with $)"
                atom-value="$[data.RootFolder]" />
+
+        <div atom-field-visible="[/^tfs/i.test($data.SourceType)]">
+            <div>Root folder should be the nested folder inside path starting with $, is typically $/TFProjectName/Branch/SourceFolder etc.</div>
+            <div>Please use "/" as path separator required for TFS.</div>
+        </div>
 
 
         <input atom-label="Solution"
                atom-value="$[data.SolutionPath]" />
-
+        <div>
+            <div>Path to Solution (.sln) file starting from root. Should not start with "\", it is a relative path.</div>
+            <div>Relative path starts from folder where .git folder exists.</div>
+        </div>
 
         <input atom-label="Web Project"
                atom-value="$[data.WebProjectPath]" />
+        <div>
+            <div>Path to Web Proejct (.csproj) file starting from root. Should not start with "\", it is a relative path.</div>
+            <div>Relative path starts from folder where .git folder exists.</div>
+        </div>
 
         <span atom-label="Build Solution?"
               atom-type="AtomYesNoControl"
@@ -196,6 +213,7 @@
         </table>
 
         <textarea
+                  class="custom-xdt"
                   atom-label="Custom XDT"
                   atom-value="$[data.CustomXDT]"></textarea>
         

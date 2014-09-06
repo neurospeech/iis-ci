@@ -1,4 +1,20 @@
-﻿.site-table {
+﻿.header {
+  height: 70px;
+}
+.footer {
+  height: 30px;
+  background-color: #F0F0F0;
+}
+.footer a {
+  color: forestgreen;
+  position: absolute;
+  right: 10px;
+  top: 5px;
+}
+.footer a:hover {
+  color: lawngreen;
+}
+.site-table {
   width: 100%;
 }
 .site-table thead tr {
@@ -32,6 +48,21 @@
 .site-table tbody tr:hover {
   background-color: lightgoldenrodyellow;
 }
+.site-table .last-build {
+  width: 70px;
+}
+.site-table .build-time {
+  width: 120px;
+}
+.site-table .config {
+  width: 70px;
+}
+.site-table .build {
+  width: 100px;
+}
+.site-table td.button {
+  text-align: center;
+}
 .data-form table {
   width: 97%;
 }
@@ -42,27 +73,31 @@
   max-width: 200px;
   width: 200px;
 }
-table.connection-strings .name {
+.data-form table.connection-strings .name {
   width: 150px;
 }
-table.connection-strings .provider {
+.data-form table.connection-strings .provider {
   width: 200px;
 }
-table.connection-strings .command {
+.data-form table.connection-strings .command {
   width: 30px;
   text-align: right;
 }
-table.connection-strings .command button {
+.data-form table.connection-strings .command button {
   width: 30px;
 }
-table.app-settings .key {
+.data-form table.app-settings .key {
   width: 150px;
 }
-table.app-settings .command {
+.data-form table.app-settings .command {
   width: 30px;
   text-align: right;
 }
-table.app-settings .command button {
+.data-form table.app-settings .command button {
   width: 30px;
+}
+.data-form .custom-xdt {
+  width: 95%;
+  height: 180px;
 }
 /*# sourceMappingURL=Site.css.map */
