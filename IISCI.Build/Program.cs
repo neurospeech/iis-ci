@@ -11,6 +11,9 @@ namespace IISCI.Build
 {
     class Program
     {
+
+        static bool HasChanges = true;
+
         static void Main(string[] args)
         {
             string siteRoot = args[0];
@@ -53,14 +56,18 @@ namespace IISCI.Build
                 log = outWriter.ToString();
             }
 
-            var lastBuild = new LastBuild(){ 
-                Time = DateTime.UtcNow,
-                ExitCode =Environment.ExitCode,
-                Log = log,
-                Error = error
-            };
+            if (HasChanges)
+            {
+                var lastBuild = new LastBuild()
+                {
+                    Time = DateTime.UtcNow,
+                    ExitCode = Environment.ExitCode,
+                    Log = log,
+                    Error = error
+                };
 
-            JsonStorage.WriteFile(lastBuild, buildFolder + "\\last-build.json");
+                JsonStorage.WriteFile(lastBuild, buildFolder + "\\last-build.json");
+            }
 
             if (!string.IsNullOrWhiteSpace(log)) {
                 Console.Out.Write(log);
@@ -80,12 +87,22 @@ namespace IISCI.Build
 
                 var result = DownloadFilesAsync(config, buildFolder).Result;
 
+                if (result == 0) {
+                    Console.WriteLine("+++++++++++++++++++++ No changes to deploy +++++++++++++++++++++");
+                    HasChanges = false;
+                    return;
+                }
+
                 if (config.UseMSBuild)
                 {
                     string batchFileContents = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
                     batchFileContents += "\"" + buildFolder + "\\source\\" + config.SolutionPath + "\"";
                     batchFileContents += " /t:Build ";
                     batchFileContents += " /p:Configuration=" + config.MSBuildConfig;
+                    if (!string.IsNullOrWhiteSpace(config.MSBuildParameters))
+                    {
+                        batchFileContents += " " + config.MSBuildParameters;
+                    }
 
                     string batchFile = buildFolder + "\\msbuild.bat";
 
@@ -104,6 +121,7 @@ namespace IISCI.Build
                     Console.WriteLine("+++++++++++++++++++++ Deployment Successful !!! +++++++++++++++++++++");
                 }
 
+
             }
             catch (Exception ex)
             {
@@ -111,9 +129,10 @@ namespace IISCI.Build
                 Console.Error.WriteLine(ex.ToString());
                 Console.Error.WriteLine("************************* Deployment failed ***************************");
             }
+
         }
 
-        static async Task<string> DownloadFilesAsync(BuildConfig config, string buildFolder)
+        static async Task<int> DownloadFilesAsync(BuildConfig config, string buildFolder)
         {
             using (ISourceController ctrl = GetController(config))
             {
@@ -143,9 +162,10 @@ namespace IISCI.Build
                         await Task.WhenAll(downloadList);
                         rep.UpdateFiles(slice);
                     }
+
+                    return changes.Count();
                 }
             }
-            return null;
         }
 
         private static ISourceController GetController(BuildConfig config)
