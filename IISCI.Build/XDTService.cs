@@ -32,7 +32,7 @@ namespace IISCI.Build
 
                 webConfig = Transform(webConfig, buildXDT);
 
-                if (config.CustomXDT != null)
+                if (!string.IsNullOrWhiteSpace(config.CustomXDT))
                 {
                     string customXDT = buildFolder + "\\custom.xdt";
                     File.WriteAllText(customXDT, config.CustomXDT);
