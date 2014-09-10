@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -54,18 +55,18 @@ namespace IISCI.Web.Controllers
 
                 Response.Flush();
 
+                Log(Response,"Executing command " + executable + " " + parameters);
+
                 int n = ProcessHelper.Execute(
                     executable,
                     parameters,
                     s =>
                     {
-                        Response.WriteLine(Log(s, false));
-                        Response.Flush();
+                        Log(Response, s, false);
                     },
                     s =>
                     {
-                        Response.WriteLine(Log(s, true));
-                        Response.Flush();
+                        Log(Response, s, true);
                     });
             }
             finally {
@@ -77,11 +78,12 @@ namespace IISCI.Web.Controllers
 
         }
 
-        private string Log(string text, bool error)
+        private void Log(TextWriter writer, string text, bool error = false)
         {
             JavaScriptSerializer js = new JavaScriptSerializer();
             text = js.Serialize(text);
-            return "<script type='text/javascript'>log(" + text + "," + (error ? "true": "false") + ")</script>";
+            writer.WriteLine("<script type='text/javascript'>log(" + text + "," + (error ? "true": "false") + ")</script>");
+            writer.Flush();
         }
     }
 }
