@@ -152,9 +152,16 @@ namespace IISCI.Build
                         {
                             string filePath = rep.LocalFolder + x.Folder + "/" + x.Name;
                             System.IO.FileInfo finfo = new System.IO.FileInfo(filePath);
-                            if (!finfo.Directory.Exists)
+                            if (finfo.Exists)
                             {
-                                finfo.Directory.Create();
+                                finfo.Delete();
+                            }
+                            else
+                            {
+                                if (!finfo.Directory.Exists)
+                                {
+                                    finfo.Directory.Create();
+                                }
                             }
                             return ctrl.DownloadAsync(config, x, filePath);
                         });
