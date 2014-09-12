@@ -54,6 +54,7 @@
                 <th class="build-time">Build Time</th>
                 <th class="config">Config</th>
                 <th class="build">Build</th>
+                <th class="build">Reset &amp; Build</th>
             </tr>
         </thead>
         <tbody atom-presenter="itemsPresenter">
@@ -73,6 +74,10 @@
                 <td class="button">
                     <a atom-href="{Atom.url('/iis/build',{ id: $data.Id })}"
                        target="_blank"><button>Build Now</button></a>
+                </td>
+                <td class="button">
+                    <a atom-href="{Atom.url('/iis/build',{ id: $data.Id, reset:true })}"
+                       target="_blank"><button>Reset &amp; Build</button></a>
                 </td>
             </tr>
         </tbody>

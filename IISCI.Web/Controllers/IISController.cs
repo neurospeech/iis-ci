@@ -49,11 +49,18 @@ namespace IISCI.Web.Controllers
         }
 
         [Authorize]
-        public ActionResult Build(int id)
+        public ActionResult Build(int id, bool reset = false)
         {
             string buildPath = IISStore + "\\" + id;
 
             string commandLine = id + " \"" + buildPath + "\"" ;
+
+            if (reset) {
+                var file = new System.IO.FileInfo(buildPath + "\\local-repository.json");
+                if (file.Exists) {
+                    file.Delete();
+                }
+            }
 
             return new BuildActionResult(commandLine);
 
@@ -101,13 +108,13 @@ namespace IISCI.Web.Controllers
             return Json(CreateBuildKey(), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult BuildTrigger(int id, string key)
+        public ActionResult BuildTrigger(int id, string key, bool reset = false)
         {
             string path = IISStore + "\\" + id + "\\build-config.json";
             var model = JsonStorage.ReadFile<BuildConfig>(path);
             if (model.TriggerKey != key)
                 throw new UnauthorizedAccessException();
-            return Build(id);
+            return Build(id,reset);
         }
     }
 }
