@@ -47,7 +47,7 @@ namespace IISCI
                 {
                     if (localFile.Version != remoteItem.Version)
                     {
-                        Files.Remove(remoteItem.Url);
+                        localFile.Version = remoteItem.Version;
                         changes.Add(new Change { Type = ChangeType.Modified, RepositoryFile = localFile });
                     }
                 }
@@ -65,13 +65,16 @@ namespace IISCI
                 }
             }
 
-            foreach (var item in Files.Values)
+            foreach (var item in Files.Values.ToList())
             {
                 if (!remoteItems.Any(x => x.Url == item.Url))
                 {
                     changes.Add(new Change { Type = ChangeType.Removed, RepositoryFile = item });
                 }
             }
+
+            // clear local cache..
+            Files.Clear();
 
             return changes;
         }
