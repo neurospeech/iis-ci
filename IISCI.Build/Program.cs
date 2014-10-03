@@ -141,10 +141,19 @@ namespace IISCI.Build
                     ctrl.Initialize(config);
 
                     List<ISourceItem> remoteItems = await ctrl.FetchAllFiles(config);
-                    var changes = rep.GetChanges(remoteItems);
+                    var changes = rep.GetChanges(remoteItems).ToList();
 
                     var updatedFiles = changes.Where(x => x.Type == ChangeType.Added || x.Type == ChangeType.Modified)
                         .Select(x => x.RepositoryFile).Where(x => !x.IsDirectory).ToList();
+
+                    foreach (var item in changes.Where(x => x.Type == ChangeType.Removed))
+                    {
+                        string filePath = item.RepositoryFile.FilePath;
+                        if (File.Exists(filePath))
+                        {
+                            File.Delete(filePath);
+                        }
+                    }
 
                     foreach (var slice in updatedFiles.Slice(25))
                     {
@@ -163,6 +172,7 @@ namespace IISCI.Build
                                     finfo.Directory.Create();
                                 }
                             }
+                            x.FilePath = filePath;
                             return ctrl.DownloadAsync(config, x, filePath);
                         });
 

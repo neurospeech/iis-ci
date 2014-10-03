@@ -110,5 +110,6 @@ namespace IISCI
         public string Version { get; set; }
         public string Url { get; set; }
         public bool IsDirectory { get; set; }
+        public string FilePath { get; set; }
     }
 }
