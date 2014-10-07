@@ -129,6 +129,12 @@
       <DependentUpon>Site.css</DependentUpon>
     </Content>
     <Content Include="Global.asax" />
+    <Content Include="Content\Site.less" />
+    <Content Include="Content\Site.css.map">
+      <DependentUpon>Site.css</DependentUpon>
+    </Content>
+    <None Include="Properties\PublishProfiles\Local.pubxml" />
+    <Content Include="Scripts\atoms.js" />
     <Content Include="Scripts\atoms.min.js" />
     <Content Include="Scripts\atoms\plugins\entity-framework\entity-context.js" />
     <Content Include="Scripts\atoms\plugins\entity-framework\entity-controls.js" />
@@ -138,11 +144,7 @@
     <Content Include="Scripts\atoms\plugins\upload\atom-uploader.css" />
     <Content Include="Scripts\atoms\plugins\upload\atom-uploader.css.map" />
     <Content Include="Scripts\atoms\plugins\entity-framework\entity.css.map" />
-    <Content Include="Content\Site.less" />
-    <Content Include="Content\Site.css.map">
-      <DependentUpon>Site.css</DependentUpon>
-    </Content>
-    <None Include="Properties\PublishProfiles\Local.pubxml" />
+    <Content Include="Scripts\atoms.min.map" />
     <None Include="Scripts\jquery-1.11.1.intellisense.js" />
     <Content Include="Scripts\app.js" />
     <Content Include="Scripts\atoms-debug.js" />
@@ -151,6 +153,7 @@
     <Content Include="Scripts\atoms\plugins\upload\busy.gif" />
     <Content Include="Scripts\atoms\plugins\upload\checked.png" />
     <Content Include="Scripts\atoms\plugins\upload\t.png" />
+    <Content Include="Scripts\atoms\plugins\upload\upload.png" />
     <Content Include="Scripts\jquery-1.11.1.js" />
     <Content Include="Scripts\jquery-1.11.1.min.js" />
     <Content Include="Style\atoms\atoms.css" />
