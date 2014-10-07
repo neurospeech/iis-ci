@@ -70,11 +70,12 @@ namespace IISCI
                 if (!remoteItems.Any(x => x.Url == item.Url))
                 {
                     changes.Add(new Change { Type = ChangeType.Removed, RepositoryFile = item });
+                    Files.Remove(item.Url);
                 }
             }
 
             // clear local cache..
-            Files.Clear();
+            //Files.Clear();
 
             return changes;
         }

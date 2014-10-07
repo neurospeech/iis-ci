@@ -143,6 +143,12 @@ namespace IISCI.Build
                     List<ISourceItem> remoteItems = await ctrl.FetchAllFiles(config);
                     var changes = rep.GetChanges(remoteItems).ToList();
 
+                    var changeTypes = changes.GroupBy(x => x.Type);
+                    foreach (var item in changeTypes)
+                    {
+                        Console.WriteLine("Changes {0}: {1}",item.Key, item.Count());
+                    }
+
                     var updatedFiles = changes.Where(x => x.Type == ChangeType.Added || x.Type == ChangeType.Modified)
                         .Select(x => x.RepositoryFile).Where(x => !x.IsDirectory).ToList();
 
@@ -180,7 +186,7 @@ namespace IISCI.Build
                         rep.UpdateFiles(slice);
                     }
 
-                    return changes.Count();
+                    return updatedFiles.Count();
                 }
             }
         }
