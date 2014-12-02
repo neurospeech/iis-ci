@@ -49,7 +49,7 @@ namespace IISCI.Build
 
             XNamespace xdt = "http://schemas.microsoft.com/XML-Document-Transform";
 
-            var doc = XDocument.Parse("<?xml version=\"1.0\"?><configuration></configuration>");
+            var doc = XDocument.Parse("<?xml version=\"1.0\"?><configuration xmlns:xdt=\"http://schemas.microsoft.com/XML-Document-Transform\"></configuration>");
 
             var connectionStrings = new XElement(XName.Get("connectionStrings"));
             doc.Root.Add(connectionStrings);
