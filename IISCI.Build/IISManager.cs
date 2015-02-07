@@ -18,9 +18,9 @@ namespace IISCI.Build
         {
             using (ServerManager mgr = new ServerManager()) {
                 Site site = null;
-                if (config.SiteId > 0)
+                if (!string.IsNullOrWhiteSpace(config.SiteId))
                 {
-                    site = mgr.Sites.FirstOrDefault(x => x.Id == config.SiteId);
+                    site = mgr.Sites.FirstOrDefault(x => x.Name == config.SiteId);
                 }
                 else
                 {

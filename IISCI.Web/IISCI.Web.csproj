@@ -140,6 +140,9 @@
     <Content Include="Scripts\atoms\plugins\entity-framework\entity-controls.js" />
     <Content Include="Scripts\atoms\plugins\entity-framework\entity.css" />
     <Content Include="Scripts\atoms\plugins\entity-framework\entity.min.css" />
+    <Content Include="Scripts\atoms\plugins\masked\atom-masked-phone.css" />
+    <Content Include="Scripts\atoms\plugins\masked\atom-masked-phone.js" />
+    <Content Include="Scripts\atoms\plugins\masked\jquery.maskedinput.js" />
     <Content Include="Scripts\atoms\plugins\upload\atom-flash-uploader.swf" />
     <Content Include="Scripts\atoms\plugins\upload\atom-uploader.css" />
     <Content Include="Scripts\atoms\plugins\upload\atom-uploader.css.map" />

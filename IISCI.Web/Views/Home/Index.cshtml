@@ -5,6 +5,7 @@
 <script type="text/javascript">
     ({
         site: 0,
+        view:"main",
         sourceTypes: [
             { label: 'Git', value: 'git' },
             { label: 'TFS 2012', value: 'tfs2012' },
@@ -39,7 +40,7 @@
      atom-dock="Fill"
      atom-name="frameView"
      atom-type="AtomFrameView"
-     atom-url="main">
+     atom-url="$[appScope.view]">
 </div>
 
 <div atom-template-name="main" style="overflow:auto">
@@ -70,7 +71,11 @@
                             >Failed</button>
                 </td>
                 <td class="button" atom-text="{ $data.LastBuild.Time ? AtomDate.toDateTimeString($data.LastBuild.Time) : 'n/a' }"></td>
-                <td class="button"><button atom-event-click="{ {appScope: { site: $data.Id, 'frameView.url':'config'}} }">Config</button></td>
+                <td class="button">
+                    <a atom-href="{ '#view=config&site=' + $data.Id }">
+                        <button>Config</button>
+                    </a>
+                </td>
                 <td class="button">
                     <a atom-href="{Atom.url('/iis/build',{ id: $data.Id })}"
                        target="_blank"><button>Build Now</button></a>
@@ -230,7 +235,7 @@
             <button type="submit">
                 Save
             </button>
-            <button atom-event-click="{$appScope.frameView.backCommand}">
+            <button atom-event-click="{ { appScope: { view: 'main' } } }">
                 Cancel
             </button>
 

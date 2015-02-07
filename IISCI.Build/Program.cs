@@ -28,11 +28,6 @@ namespace IISCI.Build
 
             BuildConfig config = JsonStorage.ReadFile<BuildConfig>(buildFolder + "\\build-config.json");
             config.SiteHost = siteRoot;
-            int id = 0;
-            if (int.TryParse(config.SiteHost, out id)) {
-                config.SiteHost = null;
-                config.SiteId = id;
-            }
             config.BuildFolder = buildFolder;
 
             string log;

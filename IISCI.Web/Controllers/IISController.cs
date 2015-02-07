@@ -39,17 +39,18 @@ namespace IISCI.Web.Controllers
 
             var sites = ServerManager.Sites.Select(x => new
             {
-                Id = x.Id,
+                Id = x.Name,
+                IISID = x.Id,
                 Name = x.Name,
                 Bindings = x.Bindings.Select(y => y.Host),
-                LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(IISStore + "\\" + x.Id + "\\last-build.json")
+                LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(IISStore + "\\" + x.Name + "\\last-build.json")
             }).ToList();
 
             return Json( sites, JsonRequestBehavior.AllowGet);
         }
 
         [Authorize]
-        public ActionResult Build(int id, bool reset = false)
+        public ActionResult Build(string id, bool reset = false)
         {
             string buildPath = IISStore + "\\" + id;
 
@@ -69,7 +70,7 @@ namespace IISCI.Web.Controllers
 
         [HttpGet]
         [Authorize]
-        public ActionResult GetBuildConfig(int id)
+        public ActionResult GetBuildConfig(string id)
         {
             string path = IISStore + "\\" + id + "\\build-config.json";
             BuildConfig config = JsonStorage.ReadFileOrDefault<BuildConfig>(path);
@@ -91,7 +92,7 @@ namespace IISCI.Web.Controllers
 
         [Authorize]
         [ValidateInput(false)]
-        public ActionResult UpdateBuildConfig(int id)
+        public ActionResult UpdateBuildConfig(string id)
         {
             string path = IISStore + "\\" + id + "\\build-config.json";
 
@@ -108,7 +109,7 @@ namespace IISCI.Web.Controllers
             return Json(CreateBuildKey(), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult BuildTrigger(int id, string key, bool reset = false)
+        public ActionResult BuildTrigger(string id, string key, bool reset = false)
         {
             string path = IISStore + "\\" + id + "\\build-config.json";
             var model = JsonStorage.ReadFile<BuildConfig>(path);
