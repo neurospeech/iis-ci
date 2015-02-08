@@ -103,8 +103,8 @@
 
 <div class="data-form"
      atom-template-name="config"
-     atom-data="{AtomPromise.json('/iis/getbuildconfig', { id: $appScope.site })}"
-     atom-post-url="{Atom.url('/iis/updatebuildconfig',{ id: $appScope.site })}"
+     atom-data="[AtomPromise.json('/iis/getbuildconfig', { id: $appScope.site })]"
+     atom-post-url="[Atom.url('/iis/updatebuildconfig',{ id: $appScope.site })]"
      atom-success-message="Config saved successfully"
      atom-next="{ $appScope.frameView.backCommand }"
      atom-type="AtomForm"
