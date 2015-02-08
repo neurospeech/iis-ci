@@ -83,9 +83,13 @@ namespace IISCI.Build
                 var result = DownloadFilesAsync(config, buildFolder).Result;
 
                 if (result == 0) {
-                    Console.WriteLine("+++++++++++++++++++++ No changes to deploy +++++++++++++++++++++");
-                    HasChanges = false;
-                    return;
+                    var lb = JsonStorage.ReadFileOrDefault<LastBuild>(buildFolder + "\\last-build.json");
+                    if (lb == null || string.IsNullOrWhiteSpace(lb.Error))
+                    {
+                        Console.WriteLine("+++++++++++++++++++++ No changes to deploy +++++++++++++++++++++");
+                        HasChanges = false;
+                        return;
+                    }
                 }
 
                 if (config.UseMSBuild)
