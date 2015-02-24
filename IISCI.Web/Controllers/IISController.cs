@@ -101,6 +101,14 @@ namespace IISCI.Web.Controllers
             var model = JsonConvert.DeserializeObject<BuildConfig>(formValue);
 
             JsonStorage.WriteFile(model, path);
+
+            string lastBuildFile = IISStore + "\\" + id + "\\last-build.json";
+            var lastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(lastBuildFile);
+            if (lastBuild == null) {
+                lastBuild = new LastBuild();
+            }
+            lastBuild.Error = "Config changed";
+            JsonStorage.WriteFile(lastBuild, lastBuildFile);
             return Json(model);
         }
 
