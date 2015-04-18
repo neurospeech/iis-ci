@@ -8,30 +8,15 @@ using System.Web.Mvc;
 
 namespace IISCI.Web.Controllers
 {
-    public class IISController : Controller
+    public class IISController : BaseController
     {
 
-        public static string IISStore = null;
 
-        ServerManager ServerManager;
 
         public IISController()
         {
-            ServerManager = new ServerManager();
-
-            if (IISStore == null) {
-                IISStore = System.Web.Configuration.WebConfigurationManager.AppSettings["IISCI.Store"];
-            }
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (disposing) {
-                ServerManager.Dispose();
-                ServerManager = null;
-            }
-        }
 
         [Authorize]
         public ActionResult Sites()

@@ -243,3 +243,40 @@
     </div>
 </div>
 
+<section atom-template-name="files" 
+     atom-type="AtomDockPanel"
+     >
+    <div atom-dock="Left"
+         style="overflow:auto">
+        <div atom-type="AtomListBox"
+             atom-name="folderList"
+             atom-allow-select-first="true"
+             atom-value-path="Path"
+             atom-items="{AtomPromise.json('/files/folders/' + $appScope.site)}">
+            <div 
+                 atom-template="itemTemplate">
+                <span 
+                      style-padding-left="{ ($data.Depth*20) + 'px'}"
+                      atom-text="{$data.Name}"></span>
+            </div>
+        </div>
+    </div>
+    <section atom-type="AtomItemsControl"
+             atom-items="[ $appScope.folderList.value ? AtomPromise.json('/files/files/' + $appScope.site + '/' + $appScope.folderList.value ) : [] ]">
+        <table>
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Size</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody atom-presenter="itemsPresenter">
+                <tr atom-template="itemTemplate">
+                    <td atom-text="{$data.Name}"></td>
+                    <td atom-text="{$data.Size}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</section>

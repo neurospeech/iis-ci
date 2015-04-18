@@ -14,6 +14,12 @@ namespace IISCI.Web
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
 
+            routes.MapRoute(
+                name: "Files",
+                url: "files/{action}/{id}/{path*}",
+                defaults: new { controller = "Files", action = "Raw", id = UrlParameter.Optional, key = UrlParameter.Optional }
+            );
+
 
             routes.MapRoute(
                 name: "Default",
