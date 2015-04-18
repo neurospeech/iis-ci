@@ -77,6 +77,11 @@
                     </a>
                 </td>
                 <td class="button">
+                    <a atom-href="{ '#view=files&site=' + $data.Id }">
+                        <button>Files</button>
+                    </a>
+                </td>
+                <td class="button">
                     <a atom-href="{Atom.url('/iis/build',{ id: $data.Id })}"
                        target="_blank"><button>Build Now</button></a>
                 </td>
@@ -247,17 +252,15 @@
      atom-type="AtomDockPanel"
      >
     <div atom-dock="Left"
-         style="overflow:auto">
+         style="overflow:auto;width:200px;">
         <div atom-type="AtomListBox"
              atom-name="folderList"
              atom-allow-select-first="true"
              atom-value-path="Path"
              atom-items="{AtomPromise.json('/files/folders/' + $appScope.site)}">
-            <div 
+            <div style-margin-left="{ ($data.Depth*20) + 'px'}"
                  atom-template="itemTemplate">
-                <span 
-                      style-padding-left="{ ($data.Depth*20) + 'px'}"
-                      atom-text="{$data.Name}"></span>
+                <span atom-text="{$data.Name}"></span>
             </div>
         </div>
     </div>

@@ -16,16 +16,19 @@ namespace IISCI.Web
 
             routes.MapRoute(
                 name: "Files",
-                url: "files/{action}/{id}/{path*}",
-                defaults: new { controller = "Files", action = "Raw", id = UrlParameter.Optional, key = UrlParameter.Optional }
+                url: "files/{action}/{id}/{*path}",
+                defaults: new { controller = "Files", action = "Raw" }
             );
-
 
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}/{key}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional, key = UrlParameter.Optional }
             );
+
+
+
         }
     }
+
 }
