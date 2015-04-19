@@ -48,7 +48,18 @@ namespace IISCI
 
         public string Notify { get; set; }
 
-        public StartUrl[] StartUrls { get; set; }
+        private List<StartUrl> _StartUrls = new List<StartUrl>();
+        public StartUrl[] StartUrls { 
+            get {
+                return _StartUrls.ToArray();
+            }
+            set {
+                _StartUrls.Clear();
+                if (value == null)
+                    return;
+                _StartUrls.AddRange(value);
+            }
+        }
 
         private List<BuildAppSetting> _AppSettings = new List<BuildAppSetting>();
         public BuildAppSetting[] AppSettings { get {
