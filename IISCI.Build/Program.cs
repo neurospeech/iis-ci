@@ -94,10 +94,16 @@ namespace IISCI.Build
 
                 if (config.UseMSBuild)
                 {
+                    string errorLog = buildFolder + "\\errors.txt";
+                    if (File.Exists(errorLog)) {
+                        File.Delete(errorLog);
+                    }
+
                     string batchFileContents = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
                     batchFileContents += "\"" + buildFolder + "\\source\\" + config.SolutionPath + "\"";
                     batchFileContents += " /t:Build ";
                     batchFileContents += " /p:Configuration=" + config.MSBuildConfig;
+                    batchFileContents += " /flp1:logfile=errors.txt;errorsonly";
                     if (!string.IsNullOrWhiteSpace(config.MSBuildParameters))
                     {
                         batchFileContents += " " + config.MSBuildParameters;
@@ -108,8 +114,11 @@ namespace IISCI.Build
                     File.WriteAllText(batchFile, batchFileContents);
 
 
-                    ProcessHelper.Execute(batchFile, "" , o => Console.WriteLine(o), e => Console.Error.WriteLine(e));
-
+                    int n = ProcessHelper.Execute(batchFile, "" , o => Console.WriteLine(o), e => Console.Error.WriteLine(e));
+                    if (n != 0) {
+                        string error = File.Exists(errorLog) ? File.ReadAllText(errorLog) : "";
+                        throw new InvalidOperationException(error);
+                    }
 
                     // transform...
 
