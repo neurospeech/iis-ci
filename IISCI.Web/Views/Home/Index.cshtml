@@ -54,6 +54,7 @@
                 <th class="last-build">Last Build</th>
                 <th class="build-time">Build Time</th>
                 <th class="config">Config</th>
+                <th class="files">Files</th>
                 <th class="build">Build</th>
                 <th class="build">Reset &amp; Build</th>
             </tr>
@@ -235,7 +236,14 @@
         <input 
                atom-label="Build Trigger"
                atom-value="[$appScope.buildTrigger($appScope.site,$data.TriggerKey)]"/>
+
         <button atom-event-click="{ $appScope.resetBuildTrigger }">Reset Build Trigger</button>
+
+        <input atom-label="Notify Emails"
+               placeholder="Comma separated emails"
+               atom-value="$[data.Notify]" />
+
+
         <div>
             <button type="submit">
                 Save
@@ -257,6 +265,7 @@
              atom-name="folderList"
              atom-allow-select-first="true"
              atom-value-path="Path"
+             atom-value="$[appScope.folder]"
              atom-items="{AtomPromise.json('/files/folders/' + $appScope.site)}">
             <div style-margin-left="{ ($data.Depth*20) + 'px'}"
                  atom-template="itemTemplate">
@@ -265,7 +274,7 @@
         </div>
     </div>
     <section atom-type="AtomItemsControl"
-             atom-items="[ $appScope.folderList.value ? AtomPromise.json('/files/files/' + $appScope.site + '/' + $appScope.folderList.value ) : [] ]">
+             atom-items="[ $appScope.folderList.value ? AtomPromise.json('/files/files/' + $appScope.site + '/' + $appScope.folderList.value ) : [ $appScope._v ] ]">
         <table>
             <thead>
                 <tr>
@@ -276,8 +285,15 @@
             </thead>
             <tbody atom-presenter="itemsPresenter">
                 <tr atom-template="itemTemplate">
-                    <td atom-text="{$data.Name}"></td>
+                    <td atom-text="{$data.Name}"
+                        style="cursor:pointer"
+                        atom-event-click="{ $data.IsDirectory ? { appScope: {folder: $appScope.folder + '/' + $data.Name} } : {} }"></td>
                     <td atom-text="{$data.Size}"></td>
+                    <td><button atom-type="AtomDeleteButton"
+                            atom-post-url="{'/files/delete/' + $appScope.site + $appScope.folderList.value + '/' + $data.Name }"
+                            atom-next="{$appScope.refreshCommand}">
+                        Delete
+                    </button></td>
                 </tr>
             </tbody>
         </table>

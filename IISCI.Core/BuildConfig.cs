@@ -46,6 +46,8 @@ namespace IISCI
 
         public bool DeleteLocalFiles { get; set; }
 
+        public string Notify { get; set; }
+
         private List<BuildAppSetting> _AppSettings = new List<BuildAppSetting>();
         public BuildAppSetting[] AppSettings { get {
             return _AppSettings.ToArray();

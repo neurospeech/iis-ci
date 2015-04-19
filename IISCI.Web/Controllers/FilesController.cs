@@ -69,7 +69,7 @@ namespace IISCI.Web.Controllers
 
         private DirectoryInfo GetFolder(string id)
         {
-            var site = ServerManager.Sites.FirstOrDefault(x => x.Bindings.Any(b => b.Host == id));
+            var site = ServerManager.Sites.FirstOrDefault(x => x.Name == id);
             var app = site.Applications.FirstOrDefault();
             var vdir = app.VirtualDirectories.FirstOrDefault();
             return new DirectoryInfo(vdir.PhysicalPath);

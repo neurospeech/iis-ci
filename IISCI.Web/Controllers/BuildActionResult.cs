@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -13,9 +14,12 @@ namespace IISCI.Web.Controllers
     {
         string parameters;
 
-        public BuildActionResult(string cmdLine)
+        BuildConfig config;
+
+        public BuildActionResult(BuildConfig config, string cmdLine)
         {
             parameters = cmdLine;
+            this.config = config;
         }
 
         private static List<string> BuildInProgress = new List<string>();
@@ -43,31 +47,47 @@ namespace IISCI.Web.Controllers
 
                 var executable = Server.MapPath("/") + "\\bin\\IISCI.build.exe";
 
-                Response.WriteLine("<html><script type='text/javascript'>");
-                Response.WriteLine("function log(txt,error){");
-                Response.WriteLine("var line = document.createElement('PRE');");
-                Response.WriteLine("line.textContent = txt;");
-                Response.WriteLine("if(error) { line.style.color= 'red'; }");
-                Response.WriteLine("document.getElementById('logger').appendChild(line);");
-                Response.WriteLine("setTimeout( function(){  line.scrollIntoView(); }, 100);");
-                Response.WriteLine("}");
-                Response.WriteLine("</script><body><div id='logger'>");
+                Response.WriteLine("<html>");
+                Response.WriteLine("<body><div id='logger'>");
 
                 Response.Flush();
 
-                Log(Response,"Executing command " + executable + " " + parameters);
+                IISCIProcess p = new IISCIProcess(executable, parameters);
+                p.Run();
 
-                int n = ProcessHelper.Execute(
-                    executable,
-                    parameters,
-                    s =>
-                    {
-                        Log(Response, s, false);
-                    },
-                    s =>
-                    {
-                        Log(Response, s, true);
-                    });
+                Response.WriteLine(p.Error);
+                Response.Flush();
+                Response.WriteLine(p.Output);
+                Response.Flush();
+
+                if(string.IsNullOrWhiteSpace(config.Notify))
+                    return;
+
+                try {
+
+                    using (SmtpClient smtp = new SmtpClient()) {
+
+                        MailMessage msg = new MailMessage();
+                        msg.From = new MailAddress("no-reply@800casting.com","IISCI Build");
+                        foreach (var item in config.Notify.Split(',',';').Where(x=> !string.IsNullOrWhiteSpace(x)))
+                        {
+                            if (!item.Contains('@'))
+                                continue;
+                            msg.To.Add(new MailAddress(item));
+                        }
+                        msg.Subject = "IISCI-Build-Notification: " + config.SiteId ;
+                        msg.IsBodyHtml = true;
+                        msg.Body = "<div><h2>" + config.SiteId + "</h2>" + p.Error + p.Output + "</div><div style='text-align:right'><a href='https://github.com/neurospeech/iis-ci' target='_blank'>IISCI by NeuroSpeech&reg;</a></div>";
+
+                        smtp.Send(msg);
+                    }
+
+
+                }
+                catch (Exception ex) {
+                    Response.WriteLine(ex.ToString());
+                }
+
             }
             finally {
                 lock (BuildInProgress)
@@ -78,12 +98,5 @@ namespace IISCI.Web.Controllers
 
         }
 
-        private void Log(TextWriter writer, string text, bool error = false)
-        {
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            text = js.Serialize(text);
-            writer.WriteLine("<script type='text/javascript'>log(" + text + "," + (error ? "true": "false") + ")</script>");
-            writer.Flush();
-        }
     }
-}
+};

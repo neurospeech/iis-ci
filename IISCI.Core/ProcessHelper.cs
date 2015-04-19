@@ -13,12 +13,12 @@ namespace IISCI
     {
         public static int Execute(
             string program,
-            string arguements,
+            string arguments,
             Action<string> consoleAction,
             Action<string> errorAction)
         {
 
-            ProcessStartInfo info = new ProcessStartInfo(program, arguements);
+            ProcessStartInfo info = new ProcessStartInfo(program, arguments);
             info.CreateNoWindow = true;
             info.UseShellExecute = false;
             info.RedirectStandardError = true;
@@ -78,5 +78,8 @@ namespace IISCI
             }
 
         }
+
+        
     }
+
 }

@@ -1,17 +1,24 @@
-﻿.header {
+﻿body {
+  font-family: 'Segoe UI', Helvetica, Verdana;
+  font-size: 9pt;
+}
+td {
+  font-size: 9pt;
+}
+header {
   height: 70px;
 }
-.footer {
+footer {
   height: 30px;
   background-color: #F0F0F0;
 }
-.footer a {
+footer a {
   color: forestgreen;
   position: absolute;
   right: 10px;
   top: 5px;
 }
-.footer a:hover {
+footer a:hover {
   color: lawngreen;
 }
 .site-table {
