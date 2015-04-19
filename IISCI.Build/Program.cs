@@ -78,14 +78,16 @@ namespace IISCI.Build
                     };
 
                     var lastBuild = buildCommand.Build();
-                    if (lastBuild.Success)
+                    if (!lastBuild.Success)
                     {
-                        string webConfig = XDTService.Instance.Process(config);
-
-                        IISManager.Instance.DeployFiles(config, webConfig);
-
-                        lastBuild.Log += "\r\n+++++++++++++++++++++ Deployment Successful !!! +++++++++++++++++++++";
+                        return lastBuild;
                     }
+
+                    string webConfig = XDTService.Instance.Process(config);
+
+                    IISManager.Instance.DeployFiles(config, webConfig);
+
+                    lastBuild.Log += "\r\n+++++++++++++++++++++ Deployment Successful !!! +++++++++++++++++++++";
 
                     return lastBuild;
                 }
