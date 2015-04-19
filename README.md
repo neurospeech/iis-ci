@@ -8,6 +8,7 @@ Features
 2. Downloads only modified source
 3. XDT Support for web.config at root folder
 4. Web Hook to automatically fetch-build-deploy
+5. Email notification after fetch-build-deploy
 
 
 Current Status
@@ -34,9 +35,10 @@ Installation
 4. Copy "C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\*" files on the server
 5. Open the website, you will see list of IIS sites with config and build options.
 6. You can configure the source type as Git or TFS, Git should use https transport only.
-7. Enter username/passwords for remote Git
+7. Enter username/passwords for remote Git or TFS
 8. Specify Solution Path as relative path of .sln file within the git source code without front slash.
 9. Specify Web Project Path as relative path of .sln file within the git source code without front slash.
 10. Add AppSettings you would want to overwrite after deployment.
 11. Add ConnectionStrings you would want to overwrite after deployment.
-12. After config is saved correctly, click on Build link.
+12. Add custom XDT to transform Web.config before deploy
+13. After config is saved correctly, click on Build link.
