@@ -3,6 +3,8 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 
@@ -111,10 +113,28 @@ namespace IISCI.Web.Controllers
             return Json(CreateBuildKey(), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult BuildTrigger(string id, string key, bool reset = false)
+        public ActionResult BuildTrigger(string id, string key, bool reset = false, bool async = true)
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new UnauthorizedAccessException();
+            if (async)
+            {
+                UriBuilder uri = new UriBuilder(Request.Url);
+                if (string.IsNullOrWhiteSpace(uri.Query))
+                {
+                    uri.Query = "async=false";
+                }
+                else
+                {
+                    uri.Query += "&async=false";
+                }
+                ThreadPool.QueueUserWorkItem((a) => {
+                    using (WebClient client = new WebClient()) {
+                        client.DownloadString(uri.Uri.ToString());
+                    }
+                });
+                return Content("Request queued");
+            }
             return Build(id,reset,key);
         }
     }
