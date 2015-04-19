@@ -114,7 +114,7 @@ namespace IISCI.Build
                     File.WriteAllText(batchFile, batchFileContents);
 
 
-                    int n = ProcessHelper.Execute(batchFile, "" , o => Console.WriteLine(o), e => Console.Error.WriteLine(e));
+                    int n = ProcessHelper.Execute(batchFile, "", o => Console.WriteLine(o), e => {  });
                     if (n != 0) {
                         string error = File.Exists(errorLog) ? File.ReadAllText(errorLog) : "";
                         throw new InvalidOperationException(error);
