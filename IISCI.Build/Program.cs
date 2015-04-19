@@ -12,8 +12,6 @@ namespace IISCI.Build
     class Program
     {
 
-        static bool HasChanges = true;
-
         static void Main(string[] args)
         {
             string siteRoot = args[0];
@@ -30,50 +28,21 @@ namespace IISCI.Build
             config.SiteHost = siteRoot;
             config.BuildFolder = buildFolder;
 
-            string log;
-            string error;
+            var lastBuild = Execute(config);
+            JsonStorage.WriteFile(lastBuild, buildFolder + "\\last-build.json");
 
-            TextWriter oldWriter = Console.Out;
-            using (StringWriter outWriter = new StringWriter())
+            if (lastBuild.Success)
             {
-                Console.SetOut(outWriter);
-                var oldError = Console.Error;
-                using (StringWriter errorWriter = new StringWriter())
-                {
-                    Console.SetError(errorWriter);
-                    Execute(config);
-                    errorWriter.Flush();
-                    Console.SetError(oldError);
-                    error = errorWriter.ToString();
-                }
-                outWriter.Flush();
-                Console.SetOut(oldWriter);
-                log = outWriter.ToString();
+                Console.WriteLine(lastBuild.Log);
             }
-
-            if (HasChanges)
-            {
-                var lastBuild = new LastBuild()
-                {
-                    Time = DateTime.UtcNow,
-                    ExitCode = Environment.ExitCode,
-                    Log = log,
-                    Error = error
-                };
-
-                JsonStorage.WriteFile(lastBuild, buildFolder + "\\last-build.json");
-            }
-
-            if (!string.IsNullOrWhiteSpace(log)) {
-                Console.Out.Write(log);
-            }
-            if (!string.IsNullOrWhiteSpace(error)) {
-                Console.Error.Write(error);
+            else {
+                Console.Error.WriteLine(lastBuild.Error ?? "Something went wrong...");
+                Environment.ExitCode = lastBuild.ExitCode;
             }
 
         }
 
-        private static void Execute(BuildConfig config)
+        private static LastBuild Execute(BuildConfig config)
         {
             try
             {
@@ -82,60 +51,55 @@ namespace IISCI.Build
 
                 var result = DownloadFilesAsync(config, buildFolder).Result;
 
-                if (result == 0) {
+                if (result == 0)
+                {
                     var lb = JsonStorage.ReadFileOrDefault<LastBuild>(buildFolder + "\\last-build.json");
                     if (lb == null || string.IsNullOrWhiteSpace(lb.Error))
                     {
-                        Console.WriteLine("+++++++++++++++++++++ No changes to deploy +++++++++++++++++++++");
-                        HasChanges = false;
-                        return;
+                        if (lb == null)
+                        {
+                            lb = new LastBuild { Time = DateTime.UtcNow };
+                        }
+                        lb.Log = "+++++++++++++++++++++ No changes to deploy +++++++++++++++++++++";
+                        lb.ExitCode = 0;
+                        lb.Error = "";
+                        return lb;
                     }
                 }
 
                 if (config.UseMSBuild)
                 {
-                    string errorLog = buildFolder + "\\errors.txt";
-                    if (File.Exists(errorLog)) {
-                        File.Delete(errorLog);
-                    }
-
-                    string batchFileContents = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
-                    batchFileContents += "\"" + buildFolder + "\\source\\" + config.SolutionPath + "\"";
-                    batchFileContents += " /t:Build ";
-                    batchFileContents += " /p:Configuration=" + config.MSBuildConfig;
-                    batchFileContents += " /flp1:logfile=errors.txt;errorsonly";
-                    if (!string.IsNullOrWhiteSpace(config.MSBuildParameters))
+                    var buildCommand = new MSBuildCommand()
                     {
-                        batchFileContents += " " + config.MSBuildParameters;
+                        Solution = config.SolutionPath,
+                        BuildFolder = buildFolder,
+                        Parameters = config.MSBuildParameters,
+                        BuildConfig = config.MSBuildConfig
+                    };
+
+                    var lastBuild = buildCommand.Build();
+                    if (lastBuild.Success)
+                    {
+                        string webConfig = XDTService.Instance.Process(config);
+
+                        IISManager.Instance.DeployFiles(config, webConfig);
+
+                        lastBuild.Log += "\r\n+++++++++++++++++++++ Deployment Successful !!! +++++++++++++++++++++";
                     }
 
-                    string batchFile = buildFolder + "\\msbuild.bat";
-
-                    File.WriteAllText(batchFile, batchFileContents);
-
-
-                    int n = ProcessHelper.Execute(batchFile, "", o => Console.WriteLine(o), e => {  });
-                    if (n != 0) {
-                        string error = File.Exists(errorLog) ? File.ReadAllText(errorLog) : "";
-                        throw new InvalidOperationException(error);
-                    }
-
-                    // transform...
-
-                    string webConfig = XDTService.Instance.Process(config);
-
-                    IISManager.Instance.DeployFiles(config,webConfig);
-
-                    Console.WriteLine("+++++++++++++++++++++ Deployment Successful !!! +++++++++++++++++++++");
+                    return lastBuild;
+                }
+                else {
+                    throw new NotImplementedException();
                 }
 
-
             }
-            catch (Exception ex)
-            {
-                Environment.ExitCode = -1;
-                Console.Error.WriteLine(ex.ToString());
-                Console.Error.WriteLine("************************* Deployment failed ***************************");
+            catch (Exception ex) {
+                return new LastBuild { 
+                    Error = ex.ToString(),
+                    ExitCode = -1,
+                    Time = DateTime.UtcNow
+                };
             }
 
         }

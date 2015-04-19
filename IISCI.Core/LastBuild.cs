@@ -12,5 +12,14 @@ namespace IISCI
         public string Log { get; set; }
         public DateTime? Time { get; set; }
         public int ExitCode { get; set; }
+
+        public bool Success {
+            get {
+                return ExitCode == 0;
+            }
+            set { 
+                
+            }
+        }
     }
 }
