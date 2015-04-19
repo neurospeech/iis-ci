@@ -108,7 +108,7 @@ namespace IISCI.Build
                     File.WriteAllText(batchFile, batchFileContents);
 
 
-                    ProcessHelper.Execute(batchFile);
+                    ProcessHelper.Execute(batchFile, "" , o => Console.WriteLine(o), e => Console.Error.WriteLine(e));
 
 
                     // transform...
