@@ -15,6 +15,8 @@ namespace IISCI.Web.Controllers
         public string Output { get; private set; }
         public string Error { get; private set; }
 
+        public bool Success { get; private set; }
+
         public IISCIProcess(string prog, string args)
         {
             program = prog;
@@ -45,8 +47,13 @@ namespace IISCI.Web.Controllers
                     if (er.Length > 0)
                     {
                         Error = "<pre style='color:red'>" + er + "</pre>";
+                        Success = false;
                     }
                     else {
+
+                        Output = "<h3 style='color:green'>Build Successful</h3>" + Output;
+                        Success = true;
+
                         Error = "";
                     }
 

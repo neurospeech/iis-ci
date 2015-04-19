@@ -75,9 +75,9 @@ namespace IISCI.Web.Controllers
                                 continue;
                             msg.To.Add(new MailAddress(item));
                         }
-                        msg.Subject = "IISCI-Build-Notification: " + config.SiteId ;
+                        msg.Subject = string.Format("IISCI-Build: {0} for {1}", (p.Success ? "Success" : "Failed" ) , config.SiteId) ;
                         msg.IsBodyHtml = true;
-                        msg.Body = "<div><h2>" + config.SiteId + "</h2>" + p.Error + p.Output + "</div><div style='text-align:right'><a href='https://github.com/neurospeech/iis-ci' target='_blank'>IISCI by NeuroSpeech&reg;</a></div>";
+                        msg.Body = "<div><h2>" + config.SiteId + "</h2>" + p.Error + p.Output + "</div><hr size='1'/><div style='text-align:right'><a href='https://github.com/neurospeech/iis-ci' target='_blank'>IISCI by NeuroSpeech&reg;</a></div>";
 
                         smtp.Send(msg);
                     }
