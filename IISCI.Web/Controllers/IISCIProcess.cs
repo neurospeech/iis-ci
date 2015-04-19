@@ -33,18 +33,18 @@ namespace IISCI.Web.Controllers
                     int n = ProcessHelper.Execute(program, arguments,
                         o =>
                         {
-                            output.WriteLine("<div>{0}</div>", HttpUtility.HtmlEncode(o));
+                            output.WriteLine(HttpUtility.HtmlEncode(o));
                         },
                                                 o =>
                         {
-                            error.WriteLine("<div>{0}</div>", HttpUtility.HtmlEncode(o));
+                            error.WriteLine(HttpUtility.HtmlEncode(o));
                         });
 
-                    Output = "<div>" + output.GetStringBuilder().ToString() + "</div>";
+                    Output = "<pre>" + output.GetStringBuilder().ToString() + "</pre>";
                     string er = error.GetStringBuilder().ToString().Trim();
                     if (er.Length > 0)
                     {
-                        Error = "<div style='color:red'>" + er + "</div>";
+                        Error = "<pre style='color:red'>" + er + "</pre>";
                     }
                     else {
                         Error = "";
