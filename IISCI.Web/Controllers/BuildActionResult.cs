@@ -60,6 +60,16 @@ namespace IISCI.Web.Controllers
                 Response.WriteLine(p.Output);
                 Response.Flush();
 
+
+                if (p.Success) {
+                    if (config.StartUrls!=null) {
+                        foreach (var url in config.StartUrls)
+                        {
+                            IISWebRequest.Instance.Invoke(config.SiteId, url.Url);
+                        }
+                    }
+                }
+
                 if(string.IsNullOrWhiteSpace(config.Notify))
                     return;
 

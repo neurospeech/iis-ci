@@ -128,11 +128,7 @@ namespace IISCI.Web.Controllers
                 {
                     uri.Query += "&async=false";
                 }
-                ThreadPool.QueueUserWorkItem((a) => {
-                    using (WebClient client = new WebClient()) {
-                        client.DownloadString(uri.Uri.ToString());
-                    }
-                });
+                IISWebRequest.Instance.Invoke(uri.Uri.ToString());
                 return Content("Request queued");
             }
             return Build(id,reset,key);

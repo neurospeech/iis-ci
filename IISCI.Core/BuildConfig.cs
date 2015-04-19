@@ -48,6 +48,8 @@ namespace IISCI
 
         public string Notify { get; set; }
 
+        public StartUrl[] StartUrls { get; set; }
+
         private List<BuildAppSetting> _AppSettings = new List<BuildAppSetting>();
         public BuildAppSetting[] AppSettings { get {
             return _AppSettings.ToArray();
@@ -87,5 +89,9 @@ namespace IISCI
         public string Name { get; set; }
         public string ConnectionString { get; set; }
         public string ProviderName { get; set; }
+    }
+
+    public class StartUrl {
+        public string Url { get; set; }
     }
 }

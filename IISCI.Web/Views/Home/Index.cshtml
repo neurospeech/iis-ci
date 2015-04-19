@@ -19,6 +19,10 @@
             var items = Atom.get(sender, "items");
             Atom.add(items, { Key: '', Value: '' });
         },
+        addStartUrl: function (scope, sender) {
+            var items = Atom.get(sender, "items");
+            Atom.add(items, { Url:'/public/prefetch' });
+        },
 
         resetBuildTrigger: function (scope, sender) {
             var data = Atom.get(sender, "data");
@@ -242,6 +246,31 @@
         <input atom-label="Notify Emails"
                placeholder="Comma separated emails"
                atom-value="$[data.Notify]" />
+
+        <table atom-label="Start Urls"
+               atom-type="AtomItemsControl"
+               atom-items="[$data.StartUrls]">
+            <thead>
+                <tr>
+                    <th colspan="2">
+                        These urls are automatically loaded after build was successful.
+                    </th>
+                </tr>
+                <tr>
+                    <th>Url</th>
+                    <th class="command"><button atom-event-click="{$appScope.addStartUrl}">+</button></th>
+                </tr>
+            </thead>
+            <tbody atom-presenter="itemsPresenter">
+                <tr atom-template="itemTemplate">
+                    <td class="connection-string">
+                        <input placeholder="Url"
+                               atom-value="$[data.Url]" />
+                    </td>
+                    <td class="command"><button atom-event-click="{ { confirm:[ 'Are you sure you want to remove?', $owner.templateParent.removeItemCommand ] } }">-</button></td>
+                </tr>
+            </tbody>
+        </table>
 
 
         <div>

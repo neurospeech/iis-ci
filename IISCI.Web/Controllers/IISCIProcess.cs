@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Threading;
 using System.Web;
 
 namespace IISCI.Web.Controllers
@@ -65,5 +67,33 @@ namespace IISCI.Web.Controllers
 
 
 
+    }
+
+    public class IISWebRequest {
+
+        public static IISWebRequest Instance = new IISWebRequest();
+
+        public void Invoke(string url) {
+            ThreadPool.QueueUserWorkItem(a => {
+                using (WebClient client = new WebClient()) {
+                    client.DownloadData(url);
+                }
+            });
+        }
+
+
+        internal void Invoke(string host, string url)
+        {
+            if (url.StartsWith("//"))
+            {
+                url = "http:" + url;
+            }
+            else {
+                if (url.StartsWith("/")) {
+                    url = "http://" + host + url;
+                }
+            }
+            Invoke(url);
+        }
     }
 }
