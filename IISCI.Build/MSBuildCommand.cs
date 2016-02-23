@@ -23,12 +23,38 @@ namespace IISCI.Build
                 
         }
 
+        public static string GetMSBuildPath() {
+
+            using (var msBuildKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\MSBuild")) {
+                string version = msBuildKey.GetSubKeyNames().OrderByDescending(x => {
+                    decimal v = 0;
+                    decimal.TryParse(x,out v);
+                    return v;
+                }).FirstOrDefault();
+
+                using (var v = msBuildKey.OpenSubKey(version)) {
+                    string path = (string)v.GetValue("MSBuildOverrideTasksPath", null);
+                    if (path != null) {
+                        path += "\\msbuild";
+                        return path;
+                    }
+                }
+            }
+            return null;
+        }
+
         public LastBuild Build() {
             FileInfo errorFile = new FileInfo(BuildFolder + "\\errors.txt");
             if (errorFile.Exists)
                 errorFile.Delete();
 
-            string batchFileContents = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
+
+            foreach (var key in Microsoft.Win32.Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\MSBuild")
+                .GetSubKeyNames()) {
+                
+            }
+
+            string batchFileContents = GetMSBuildPath() ?? @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
             batchFileContents += "\"" + BuildFolder + "\\source\\" + Solution + "\"";
             batchFileContents += " /t:Build ";
             batchFileContents += " /p:Configuration=" + BuildConfig;
