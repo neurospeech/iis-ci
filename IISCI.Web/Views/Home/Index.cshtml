@@ -48,9 +48,16 @@
 </div>
 
 <div atom-template-name="main" style="overflow:auto">
+    <script type="text/javascript">
+        ({
+            search: ''
+        })
+    </script>
     <table class="site-table"
            atom-type="AtomItemsControl"
-         atom-items="{AtomPromise.json('/iis/sites')}">
+         atom-items="{AtomPromise.json('/iis/sites')}"
+           atom-filter="[ $scope.search ? function(item){ return item.Bindings.join(',').indexOf($scope.search); } : null ]"
+           >
         <thead>
             <tr>
                 <th>Site</th>
@@ -61,6 +68,19 @@
                 <th class="files">Files</th>
                 <th class="build">Build</th>
                 <th class="build">Reset &amp; Build</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th>
+                    <input type="search" placeholder="Search Host" value="$[scope.search]"/>
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+
             </tr>
         </thead>
         <tbody atom-presenter="itemsPresenter">
