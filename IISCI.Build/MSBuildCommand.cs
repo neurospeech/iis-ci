@@ -35,7 +35,7 @@ namespace IISCI.Build
                 using (var v = msBuildKey.OpenSubKey(version)) {
                     string path = (string)v.GetValue("MSBuildOverrideTasksPath", null);
                     if (path != null) {
-                        path += "\\msbuild";
+                        path += "msbuild";
                         return path;
                     }
                 }
@@ -54,7 +54,8 @@ namespace IISCI.Build
                 
             }
 
-            string batchFileContents = GetMSBuildPath() ?? @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild ";
+            string batchFileContents = GetMSBuildPath() ?? @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild";
+            batchFileContents += " ";
             batchFileContents += "\"" + BuildFolder + "\\source\\" + Solution + "\"";
             batchFileContents += " /t:Build ";
             batchFileContents += " /p:Configuration=" + BuildConfig;
@@ -70,7 +71,13 @@ namespace IISCI.Build
 
             using (StringWriter sw = new StringWriter())
             {
-                int n = ProcessHelper.Execute(batchFile, "", o => sw.WriteLine(o), e => { });
+                
+
+                int n = ProcessHelper.Execute(
+                    batchFile, 
+                    "",
+                    BuildFolder
+                    , o => sw.WriteLine(o), e => { });
 
                 string error = null;
 

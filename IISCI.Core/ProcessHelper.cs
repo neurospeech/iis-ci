@@ -14,6 +14,7 @@ namespace IISCI
         public static int Execute(
             string program,
             string arguments,
+            string workingDirectory,
             Action<string> consoleAction,
             Action<string> errorAction)
         {
@@ -23,7 +24,7 @@ namespace IISCI
             info.UseShellExecute = false;
             info.RedirectStandardError = true;
             info.RedirectStandardOutput = true;
-            info.WorkingDirectory = System.IO.Path.GetDirectoryName(program);
+            info.WorkingDirectory = workingDirectory ?? System.IO.Path.GetDirectoryName(program);
 
             Process p = new Process();
             p.StartInfo = info;
@@ -58,7 +59,7 @@ namespace IISCI
         }
 
 
-        public static void Execute(string batchFile)
+        /*public static void Execute(string batchFile)
         {
             int exitCode = 0;
             using (StringWriter errorWriter = new StringWriter()) {
@@ -77,7 +78,7 @@ namespace IISCI
                 throw new InvalidOperationException("Process.Execute failed !!!");
             }
 
-        }
+        }*/
 
         
     }

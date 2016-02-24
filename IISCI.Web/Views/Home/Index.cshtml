@@ -56,7 +56,7 @@
     <table class="site-table"
            atom-type="AtomItemsControl"
          atom-items="{AtomPromise.json('/iis/sites')}"
-           atom-filter="[ $scope.search ? function(item){ return item.Bindings.join(',').indexOf($scope.search); } : null ]"
+           atom-filter="[ $scope.search ? function(item){ return item.Bindings.join(',').indexOf($scope.search) != -1; } : null ]"
            >
         <thead>
             <tr>
@@ -72,7 +72,7 @@
             <tr>
                 <th></th>
                 <th>
-                    <input type="search" placeholder="Search Host" value="$[scope.search]"/>
+                    <input type="search" placeholder="Search Host" atom-value="$[scope.search](change,keyup,keydown)"/>
                 </th>
                 <th></th>
                 <th></th>

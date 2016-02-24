@@ -34,7 +34,7 @@ namespace IISCI.Web.Controllers
                 using (StringWriter error = new StringWriter())
                 {
 
-                    int n = ProcessHelper.Execute(program, arguments,
+                    int n = ProcessHelper.Execute(program, arguments,null,
                         o =>
                         {
                             output.WriteLine(HttpUtility.HtmlEncode(o));
