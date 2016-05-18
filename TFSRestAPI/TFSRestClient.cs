@@ -22,8 +22,12 @@ namespace TFSRestAPI
         System.Net.CookieContainer cookies = new CookieContainer();
         CredentialCache credentials;
 
+        System.Net.Http.HttpClient client;
+        private HttpClientHandler clientHandler;
+
         public TFSRestClient()
         {
+
         }
 
         protected void InitializeClient(BuildConfig config) 
@@ -33,68 +37,56 @@ namespace TFSRestAPI
             //credentials = new NetworkCredential(config.Username, config.Password, config.Domain);
             credentials = new CredentialCache();
             credentials.Add(new Uri(config.SourceUrl), "NTLM", new NetworkCredential(config.Username, config.Password, config.Domain));
+
+
+            clientHandler = new System.Net.Http.HttpClientHandler();
+            clientHandler.CookieContainer = cookies;
+            clientHandler.Credentials = credentials;
+            clientHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            clientHandler.UseCookies = true;
+            
+
+            client = new HttpClient(clientHandler);
+            client.Timeout = TimeSpan.FromMinutes(10);
+
         }
 
         private async Task<string> Invoke(string url, object p, HttpMethod method)
         {
-            using (System.Net.Http.HttpClientHandler handler = new HttpClientHandler())
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            string requestUrl = baseUrl + url;
+            HttpRequestMessage request = new HttpRequestMessage(method, requestUrl);
+            if (p != null)
             {
-                handler.CookieContainer = cookies;
-                handler.Credentials = credentials;
-                //handler.UseDefaultCredentials = true;
-                handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                handler.UseCookies = true;
-                using (var client = new HttpClient(handler))
-                {
-                    client.Timeout = TimeSpan.FromMinutes(10);
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    string requestUrl = baseUrl + url;
-                    HttpRequestMessage request = new HttpRequestMessage(method, requestUrl);
-                    if (p != null)
-                    {
-                        var input = new StringContent(js.Serialize(p), Encoding.UTF8, "application/json; charset=utf-8");
-                        request.Content = input;
-                    }
-                    var r = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-
-                    if (!r.IsSuccessStatusCode)
-                    {
-                        var content = await r.Content.ReadAsStringAsync();
-                        throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, requestUrl + "\r\n" + content);
-                    }
-
-                    return await r.Content.ReadAsStringAsync();
-                }
+                var input = new StringContent(js.Serialize(p), Encoding.UTF8, "application/json; charset=utf-8");
+                request.Content = input;
             }
+            var r = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+
+            if (!r.IsSuccessStatusCode)
+            {
+                var content = await r.Content.ReadAsStringAsync();
+                throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, requestUrl + "\r\n" + content);
+            }
+
+            return await r.Content.ReadAsStringAsync();
         }
 
         protected async Task DownloadAsync(string url, Stream outputStream)
         {
-            using (System.Net.Http.HttpClientHandler handler = new HttpClientHandler())
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            string requestUrl = baseUrl + url;
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            var r = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+
+            if (!r.IsSuccessStatusCode)
             {
-                handler.CookieContainer = cookies;
-                handler.Credentials = credentials;
-                //handler.UseDefaultCredentials = true;
-                handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                handler.UseCookies = true;
-                using (var client = new HttpClient(handler))
-                {
-                    client.Timeout = TimeSpan.FromMinutes(10);
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    string requestUrl = baseUrl + url;
-                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-                    var r = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-
-                    if (!r.IsSuccessStatusCode)
-                    {
-                        var content = await r.Content.ReadAsStringAsync();
-                        throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, requestUrl + "\r\n" + content);
-                    }
-
-                    var input = await r.Content.ReadAsStreamAsync();
-                    await input.CopyToAsync(outputStream);
-                }
+                var content = await r.Content.ReadAsStringAsync();
+                throw new TFSRestClientException(r.StatusCode, r.ReasonPhrase, requestUrl + "\r\n" + content);
             }
+
+            var input = await r.Content.ReadAsStreamAsync();
+            await input.CopyToAsync(outputStream);
         }
 
 
@@ -141,6 +133,15 @@ namespace TFSRestAPI
 
         public void Dispose()
         {
+            if (client != null) {
+                client.Dispose();
+                client = null;
+            }
+
+            if (clientHandler != null) {
+                clientHandler.Dispose();
+                clientHandler = null;
+            }
         }
     }
 
