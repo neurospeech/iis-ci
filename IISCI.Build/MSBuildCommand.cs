@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,7 +49,8 @@ namespace IISCI.Build
             if (errorFile.Exists)
                 errorFile.Delete();
 
-            string batchFileContents = GetMSBuildPath() ?? @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild";
+            string batchFileContents = BuildFolder + PackageRestore();
+            batchFileContents += GetMSBuildPath() ?? @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild";
             batchFileContents += " ";
             batchFileContents += "\"" + BuildFolder + "\\source\\" + Solution + "\"";
             batchFileContents += " /t:Build ";
@@ -90,6 +92,14 @@ namespace IISCI.Build
 
        }
 
+        private string PackageRestore()
+        {
+
+            string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            string nuget = folder + "\\Nuget.exe restore \"" + BuildFolder + "\\source\\"  + Solution + "\"";
+            return nuget + "\r\n";
+        }
     }
 
 }
