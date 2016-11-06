@@ -49,7 +49,7 @@ namespace IISCI.Build
             if (errorFile.Exists)
                 errorFile.Delete();
 
-            string batchFileContents = BuildFolder + PackageRestore();
+            string batchFileContents = PackageRestore();
             batchFileContents += GetMSBuildPath() ?? @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild";
             batchFileContents += " ";
             batchFileContents += "\"" + BuildFolder + "\\source\\" + Solution + "\"";
