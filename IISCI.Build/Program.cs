@@ -117,7 +117,9 @@ namespace IISCI.Build
                     List<ISourceItem> remoteItems = await ctrl.FetchAllFiles(config);
                     var changes = rep.GetChanges(remoteItems).ToList();
 
-                    var changeTypes = changes.GroupBy(x => x.Type);
+                    var changeTypes = changes
+                        .Where(x=>!x.RepositoryFile.IsDirectory)
+                        .GroupBy(x => x.Type);
                     foreach (var item in changeTypes)
                     {
                         Console.WriteLine("Changes {0}: {1}",item.Key, item.Count());
@@ -173,6 +175,8 @@ namespace IISCI.Build
             {
                 case "tfs2012":
                     return new TFS2012Client();
+                case "tfs2015":
+                    return new TFS2015Client();
                 case "zipurl":
                     return new ZipSourceController();
                 case "git":

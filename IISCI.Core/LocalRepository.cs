@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -48,6 +49,7 @@ namespace IISCI
                     if (localFile.Version != remoteItem.Version)
                     {
                         localFile.Version = remoteItem.Version;
+                        localFile.Source = remoteItem;
                         changes.Add(new Change { Type = ChangeType.Modified, RepositoryFile = localFile });
                     }
                 }
@@ -59,7 +61,8 @@ namespace IISCI
                         Folder = remoteItem.Folder,
                         Version = remoteItem.Version,
                         Url = remoteItem.Url,
-                        IsDirectory = remoteItem.IsDirectory
+                        IsDirectory = remoteItem.IsDirectory,
+                        Source = remoteItem
                     };
                     changes.Add(new Change { Type = ChangeType.Added, RepositoryFile = localFile });
                 }
@@ -112,5 +115,8 @@ namespace IISCI
         public string Url { get; set; }
         public bool IsDirectory { get; set; }
         public string FilePath { get; set; }
+
+        [JsonIgnore]
+        public ISourceItem Source { get; set; }
     }
 }
