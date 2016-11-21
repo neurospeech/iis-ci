@@ -17,7 +17,7 @@
   width: 200px;
   height: 50px;
   background-color: #fff;
-  border-style: solid 2px #DA3535;
+  border: solid 2px rgba(0, 0, 0, 0.2);
   padding: 5px;
   text-align: center;
   vertical-align: middle;
@@ -104,7 +104,8 @@
   background-color: white;
   overflow: auto;
   border-top-width: 2px;
-  padding: 0px;
+  box-sizing: border-box;
+  padding: 10px;
 }
 .atom-window-template .atom-view-stack {
   margin: 2px 2px 2px 5px;
@@ -327,5 +328,16 @@
   background-color: #357ae8;
   border: 1px solid #255bb7;
   border-bottom-color: #2f5bb7;
+}
+/*#endregion */
+.atom-time-editor > input[type=text],
+.atom-time-editor > input[type=number] {
+  width: 45px;
+  padding-left: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.atom-time-editor > ul.atom-toggle-button-bar {
+  display: inline-block;
 }
 /*# sourceMappingURL=pending.css.map */
