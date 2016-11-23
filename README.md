@@ -1,6 +1,6 @@
 IIS-CI
 ======
-IIS Continuous Integration/Deployment from Git & TFS Source Control.
+IIS Continuous Integration/Deployment from Git, TFS & Visual Studio Online Source Control.
 
 Features
 --------
@@ -8,7 +8,7 @@ Features
 2. Downloads only modified source
 3. XDT Support for web.config at root folder
 4. Web Hook to automatically fetch-build-deploy
-5. Email notification after fetch-build-deploy
+5. Email notification after fetch-build-deploy (smtp delivery should be configured in web.config)
 
 
 Current Status
@@ -25,19 +25,19 @@ Why not use Kudu?
 
 Building
 --------
-You can use Visual Studio 2012/2013 to build from source code and deploy generated files in IIS.
+You can use Visual Studio 2012/2013/2015 to build from source code and deploy generated files in IIS.
 
 Installation
 ------------
 1. Create a website in IIS, make sure Windows Authentication is enabled with NTLM being first provider.
 2. Enable Anonymous Authentication for Triggers to work.
 3. Set LocalSystem as Application Pool Identity.
-4. Copy "C:\Program Files (x86)\MSBuild\Microsoft\VisualStudio\*" files on the server
+4. Download and Install MSBuild 2015
 5. Open the website, you will see list of IIS sites with config and build options.
 6. You can configure the source type as Git or TFS, Git should use https transport only.
 7. Enter username/passwords for remote Git or TFS
-8. Specify Solution Path as relative path of .sln file within the git source code without front slash.
-9. Specify Web Project Path as relative path of .sln file within the git source code without front slash.
+8. Specify Solution Path as relative path of .sln file within the source code without front slash.
+9. Specify Web Project Path as relative path of .sln file within the source code without front slash.
 10. Add AppSettings you would want to overwrite after deployment.
 11. Add ConnectionStrings you would want to overwrite after deployment.
 12. Add custom XDT to transform Web.config before deploy
