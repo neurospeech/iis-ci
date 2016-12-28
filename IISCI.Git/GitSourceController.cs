@@ -47,9 +47,12 @@ namespace IISCI.Git
                 FetchOptions options = new FetchOptions();
                 options.CredentialsProvider = CredentialsHandler;
                 Remote remote = rep.Network.Remotes["origin"];
-                rep.Fetch(remote.Name, options);
+
+                //Commands.Fetch(rep,remote.Name,)
+
+                //rep.Fetch(remote.Name, options);
                 var master = rep.Branches["master"];
-                rep.Network.Pull(new Signature("IISCI", "IISCI.IISCI@IISCI.IISCI", DateTime.Now), new PullOptions()
+                Commands.Pull(rep, new Signature("IISCI", "IISCI.IISCI@IISCI.IISCI", DateTime.Now),  new PullOptions()
                 {
                     FetchOptions = options,
                     MergeOptions = new MergeOptions() { 

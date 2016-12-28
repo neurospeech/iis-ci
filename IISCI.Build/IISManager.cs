@@ -84,10 +84,22 @@ namespace IISCI.Build
                 tdir.Create();
             }
 
+
+            CopyDirectory(dir, tdir);
+        }
+
+        private void CopyDirectory(DirectoryInfo dir, DirectoryInfo tdir)
+        {
             foreach (var dll in dir.EnumerateFiles())
             {
-                var targetPath = rootFolder + "\\bin\\" + dll.Name;
+                var targetPath = tdir.FullName + "\\" + dll.Name;
                 dll.CopyTo(targetPath, true);
+            }
+            foreach (var child in dir.EnumerateDirectories()) {
+                var childTarget = new DirectoryInfo(tdir.FullName + "\\" + child.Name);
+                if (!childTarget.Exists)
+                    childTarget.Create();
+                CopyDirectory(child, childTarget);
             }
         }
 
