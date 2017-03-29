@@ -26,6 +26,8 @@ namespace IISCI
 
         public string SourceUrl { get; set; }
 
+        public string SourceBranch { get; set; } = "master";
+
         public string Domain { get; set; }
 
         public string Username { get; set; }

@@ -150,6 +150,10 @@
         <input atom-label="Url"
                atom-value="$[data.SourceUrl]" />
 
+        <input atom-field-visible="[/^git/i.test($data.SourceType)]"
+               atom-label="Branch"
+               atom-value="$[data.SourceBranch]" />
+
         <input atom-field-visible="[/^tfs/i.test($data.SourceType)]"
                atom-label="TFS Domain"
                atom-value="$[data.Domain]" />

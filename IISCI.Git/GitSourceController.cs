@@ -51,7 +51,7 @@ namespace IISCI.Git
                 //Commands.Fetch(rep,remote.Name,)
 
                 //rep.Fetch(remote.Name, options);
-                var master = rep.Branches["master"];
+                var master = rep.Branches[config.SourceBranch ?? "master"];
                 Commands.Pull(rep, new Signature("IISCI", "IISCI.IISCI@IISCI.IISCI", DateTime.Now),  new PullOptions()
                 {
                     FetchOptions = options,
