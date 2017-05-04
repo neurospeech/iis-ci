@@ -15,4 +15,5 @@ packages/*
 /IISCI.Git/bin/Debug
 /IISCI.Git/obj/Debug
 /publish
-.vs/*
+/.vs/*
+/.vs/config/
