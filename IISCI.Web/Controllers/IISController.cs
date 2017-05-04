@@ -135,7 +135,7 @@ namespace IISCI.Web.Controllers
             }
 
             string bf = model.BuildFolder;
-            model.BuildFolder = IISStore + "\\" + BuildSourceMaps.Instance.Get(model.BuildSourceKey);
+            model.BuildFolder = IISStore + "\\" + BuildSourceMaps.Instance.Get(model.BuildSourceKey).Id;
             if (bf != model.BuildFolder) {
                 modified = true;
             }
