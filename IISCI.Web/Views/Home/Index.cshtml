@@ -41,14 +41,7 @@
 </script>
 
 
-<div 
-     atom-dock="Fill"
-     atom-name="frameView"
-     atom-type="AtomFrameView"
-     atom-url="$[appScope.view]">
-</div>
-
-<div atom-template-name="main" style="overflow:auto">
+<div atom-dock="Fill" style="overflow:auto">
     <script type="text/javascript">
         ({
             search: ''
@@ -66,9 +59,9 @@
                 <th class="last-build">Last Build</th>
                 <th class="build-time">Build Time</th>
                 <th class="config">Config</th>
-                <th class="files">Files</th>
-                <th class="build">Build</th>
-                <th class="build">Reset &amp; Build</th>
+                @*<th class="files">Files</th>*@
+                @*<th class="build">Build</th>
+                <th class="build">Reset &amp; Build</th>*@
             </tr>
             <tr>
                 <th></th>
@@ -98,11 +91,11 @@
                 </td>
                 <td class="button" atom-text="{ $data.LastBuild.Time ? AtomDate.toDateTimeString($data.LastBuild.Time) : 'n/a' }"></td>
                 <td class="button">
-                    <a atom-href="{ '#view=config&site=' + $data.Id }">
-                        <button>Config</button>
+                    <a atom-href="{ Atom.url('/home/site' , { id: $data.Id}) }">
+                        <button>Open</button>
                     </a>
                 </td>
-                <td class="button">
+                @*<td class="button">
                     <a atom-href="{ '#view=files&site=' + $data.Id }">
                         <button>Files</button>
                     </a>
@@ -114,7 +107,7 @@
                 <td class="button">
                     <a atom-href="{Atom.url('/iis/build',{ id: $data.Id, reset:true })}"
                        target="_blank"><button>Reset &amp; Build</button></a>
-                </td>
+                </td>*@
             </tr>
         </tbody>
     </table>
@@ -132,185 +125,8 @@
          atom-text="{$data.LastBuild.Error}"></pre>
 </div>
 
-<div class="data-form"
-     atom-template-name="config"
-     atom-data="[AtomPromise.json('/iis/getbuildconfig', { id: $appScope.site })]"
-     atom-post-url="[Atom.url('/iis/updatebuildconfig',{ id: $appScope.site })]"
-     atom-success-message="Config saved successfully"
-     atom-next="{ $appScope.frameView.backCommand }"
-     atom-type="AtomForm"
-     style="overflow:auto">
-    <div atom-type="AtomFormLayout">
 
-        <select atom-label="Source"
-                atom-type="AtomComboBox"
-                atom-items="{$appScope.sourceTypes}"
-                atom-value="$[data.SourceType]"></select>
-
-        <input atom-label="Url"
-               atom-value="$[data.SourceUrl]" />
-
-        <input atom-field-visible="[/^git/i.test($data.SourceType)]"
-               atom-label="Branch"
-               atom-value="$[data.SourceBranch]" />
-
-        <input atom-field-visible="[/^tfs/i.test($data.SourceType)]"
-               atom-label="TFS Domain"
-               atom-value="$[data.Domain]" />
-
-        <input atom-label="Username"
-               atom-value="$[data.Username]" />
-
-        <input atom-label="Password"
-               type="password"
-               atom-value="$[data.Password]" />
-
-        <input atom-field-visible="[/^tfs/i.test($data.SourceType)]"
-               atom-label="TFS Collection"
-               atom-value="$[data.Collection]" />
-
-        <input atom-field-visible="[/^tfs/i.test($data.SourceType)]"
-               atom-label="TFS Root Folder"
-               placeholder="$/ ... (path must start with $)"
-               atom-value="$[data.RootFolder]" />
-
-        <div atom-field-visible="[/^tfs/i.test($data.SourceType)]">
-            <div>Root folder should be the nested folder inside path starting with $, is typically $/TFProjectName/Branch/SourceFolder etc.</div>
-            <div>Please use "/" as path separator required for TFS.</div>
-        </div>
-
-
-        <input atom-label="Solution"
-               atom-value="$[data.SolutionPath]" />
-        <div>
-            <div>Path to Solution (.sln) file starting from root. Should not start with "\", it is a relative path.</div>
-            <div>Relative path starts from folder where .git folder exists.</div>
-        </div>
-
-        <input atom-label="Web Project"
-               atom-value="$[data.WebProjectPath]" />
-        <div>
-            <div>Path to Web Proejct (.csproj) file starting from root. Should not start with "\", it is a relative path.</div>
-            <div>Relative path starts from folder where .git folder exists.</div>
-        </div>
-
-        <ul atom-label="Build Solution?"
-              atom-type="AtomYesNoControl"
-              atom-value="$[data.UseMSBuild]"></ul>
-
-        <input atom-label="MSBuild Config"
-               placeholder="Debug"
-               atom-value="$[data.MSBuildConfig]" />
-
-        <input atom-label="MSBuild Custom Parameters"
-               placeholder="Optional"
-               atom-value="$[data.MSBuildParameters]" />
-
-        <table class="app-settings"
-               atom-label="App Settings"
-               atom-type="AtomItemsControl"
-               atom-items="[$data.AppSettings]">
-            <thead>
-                <tr>
-                    <th>Key</th>
-                    <th>Value</th>
-                    <th class="command"><button atom-event-click="{$appScope.addAppSetting}">+</button></th>
-                </tr>
-            </thead>
-            <tbody atom-presenter="itemsPresenter">
-                <tr atom-template="itemTemplate">
-                    <td class="key"><input atom-value="$[data.Key]" /></td>
-                    <td class="value"><input atom-value="$[data.Value]" /></td>
-                    <td class="command"><button atom-event-click="{ { confirm:[ 'Are you sure you want to remove?', $owner.templateParent.removeItemCommand ] } }">-</button></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <table atom-label="Connection Strings"
-               class="connection-strings"
-               atom-type="AtomItemsControl"
-               atom-items="[$data.ConnectionStrings]">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Connection String</th>
-                    <th>Provider</th>
-                    <th class="command"><button atom-event-click="{$appScope.addConnectionString}">+</button></th>
-                </tr>
-            </thead>
-            <tbody atom-presenter="itemsPresenter">
-                <tr atom-template="itemTemplate">
-                    <td class="name">
-                        <input placeholder="Name"
-                               atom-value="$[data.Name]" />
-                    </td>
-                    <td class="connection-string">
-                        <input placeholder="Connection String"
-                               atom-value="$[data.ConnectionString]" />
-                    </td>
-                    <td class="provider">
-                        <input placeholder="Provider (e.g. System.Data.SqlClient)"
-                               atom-value="$[data.ProviderName]" />
-                    </td>
-                    <td class="command"><button atom-event-click="{ { confirm:[ 'Are you sure you want to remove?', $owner.templateParent.removeItemCommand ] } }">-</button></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <textarea
-                  class="custom-xdt"
-                  atom-label="Custom XDT"
-                  atom-value="$[data.CustomXDT]"></textarea>
-        
-        <input 
-               atom-label="Build Trigger"
-               atom-value="[$appScope.buildTrigger($appScope.site,$data.TriggerKey)]"/>
-
-        <button atom-event-click="{ $appScope.resetBuildTrigger }">Reset Build Trigger</button>
-
-        <input atom-label="Notify Emails"
-               placeholder="Comma separated emails"
-               atom-value="$[data.Notify]" />
-
-        <table atom-label="Start Urls"
-               atom-type="AtomItemsControl"
-               atom-items="[$data.StartUrls]">
-            <thead>
-                <tr>
-                    <th colspan="2">
-                        These urls are automatically loaded after build was successful.
-                    </th>
-                </tr>
-                <tr>
-                    <th>Url</th>
-                    <th class="command"><button atom-event-click="{$appScope.addStartUrl}">+</button></th>
-                </tr>
-            </thead>
-            <tbody atom-presenter="itemsPresenter">
-                <tr atom-template="itemTemplate">
-                    <td class="connection-string">
-                        <input placeholder="Url"
-                               atom-value="$[data.Url]" />
-                    </td>
-                    <td class="command"><button atom-event-click="{ { confirm:[ 'Are you sure you want to remove?', $owner.templateParent.removeItemCommand ] } }">-</button></td>
-                </tr>
-            </tbody>
-        </table>
-
-
-        <div>
-            <button type="submit">
-                Save
-            </button>
-            <button atom-event-click="{ { appScope: { view: 'main' } } }">
-                Cancel
-            </button>
-
-        </div>
-    </div>
-</div>
-
-<section atom-template-name="files" 
+@*<section atom-template-name="files" 
      atom-type="AtomDockPanel"
      >
     <div atom-dock="Left"
@@ -352,4 +168,4 @@
             </tbody>
         </table>
     </section>
-</section>
+</section>*@
