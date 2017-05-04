@@ -2,45 +2,6 @@
     ViewBag.Title = "IISCI";
 }
 
-<script type="text/javascript">
-    ({
-        site: 0,
-        view:"main",
-        sourceTypes: [
-            { label: 'Git', value: 'git' },
-            { label: 'TFS 2015', value: 'tfs2015' },
-            { label: 'TFS 2012 (Deprecated)', value: 'tfs2012' },
-            { label:'Zip-Url', value: 'zipurl' }
-        ],
-        addConnectionString: function (scope, sender) {
-            var items = Atom.get(sender, "items");
-            Atom.add(items, { Name: '', ConnectionString:'', ProviderName: 'System.Data.SqlClient' });
-        },
-        addAppSetting: function (scope, sender) {
-            var items = Atom.get(sender, "items");
-            Atom.add(items, { Key: '', Value: '' });
-        },
-        addStartUrl: function (scope, sender) {
-            var items = Atom.get(sender, "items");
-            Atom.add(items, { Url:'/public/prefetch' });
-        },
-
-        resetBuildTrigger: function (scope, sender) {
-            var data = Atom.get(sender, "data");
-            AtomPromise.json('/iis/GenerateBuildKey').then(function (ap) {
-                Atom.set(data, "TriggerKey", ap.value());
-            }).invoke();
-        },
-        buildTrigger: function (id, key) {
-            if (!key)
-                return "";
-            return location.protocol + "//" + location.host + "/iis/buildtrigger/" + id + "/" + key;
-        }
-
-    })
-</script>
-
-
 <div atom-dock="Fill" style="overflow:auto">
     <script type="text/javascript">
         ({
