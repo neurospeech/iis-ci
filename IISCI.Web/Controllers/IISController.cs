@@ -31,7 +31,7 @@ namespace IISCI.Web.Controllers
                 Name = x.Name,
                 Bindings = x.Bindings.Select(y => y.Host),
                 LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(GetBuildConfigModel(x.Name).BuildFolder + "\\last-build.json")
-            }).ToList();
+            }).ToList().OrderBy(x=>x.Id);
 
             return Json( sites, JsonRequestBehavior.AllowGet);
         }
