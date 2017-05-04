@@ -32,7 +32,7 @@ namespace IISCI.Build
                 configXDT = args[2];
             }
 
-            BuildConfig config = JsonStorage.ReadFile<BuildConfig>(config);
+            BuildConfig config = JsonStorage.ReadFile<BuildConfig>(configPath);
             
             config.BuildFolder = buildFolder;
 
