@@ -30,7 +30,7 @@ namespace IISCI.Web.Controllers
                 IISID = x.Id,
                 Name = x.Name,
                 Bindings = x.Bindings.Select(y => y.Host),
-                LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(IISStore + "\\" + x.Name + "\\last-build.json")
+                LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(GetBuildConfigModel(x.Name).BuildFolder + "\\last-build.json")
             }).ToList();
 
             return Json( sites, JsonRequestBehavior.AllowGet);
@@ -43,25 +43,24 @@ namespace IISCI.Web.Controllers
         [Authorize]
         public ActionResult Build(string id, bool reset = false, string key = null)
         {
-            string buildPath = IISStore + "\\" + id;
 
 
             string configPath = GetConfigPath(id);
 
-            string commandLine = "id=" + id + " config=\"" + configPath + "\" build=\"" + buildPath + "\"";
 
             var model = JsonStorage.ReadFile<BuildConfig>(configPath);
+
+
             if (!string.IsNullOrWhiteSpace(key))
             {
                 if (model.TriggerKey != key)
                     throw new UnauthorizedAccessException();
             }
 
-            if (model.SiteId != id)
-            {
-                model.SiteId = id;
-                JsonStorage.WriteFile(model, configPath);
-            }
+            SaveConfig(id, configPath, model);
+
+            string buildPath = model.BuildFolder;
+            string commandLine = "id=" + id + " config=\"" + configPath + "\" build=\"" + buildPath + "\"";
 
             if (reset) {
                 var file = new System.IO.FileInfo(buildPath + "\\local-repository.json");
@@ -79,17 +78,16 @@ namespace IISCI.Web.Controllers
         [Authorize]
         public ActionResult GetBuildConfig(string id)
         {
+            BuildConfig config = GetBuildConfigModel(id);
+            return Json(config, JsonRequestBehavior.AllowGet);
+        }
+
+        private BuildConfig GetBuildConfigModel(string id)
+        {
             string path = GetConfigPath(id);
             BuildConfig config = JsonStorage.ReadFileOrDefault<BuildConfig>(path);
-            if (string.IsNullOrWhiteSpace(config.SiteId)) {
-                config.SiteId = id;
-            }
-            if (string.IsNullOrWhiteSpace(config.TriggerKey))
-            {
-                config.TriggerKey = CreateBuildKey();
-                JsonStorage.WriteFile(config, path);
-            }
-            return Json(config, JsonRequestBehavior.AllowGet);
+            SaveConfig(id, path, config);
+            return config;
         }
 
         private string CreateBuildKey() {
@@ -109,20 +107,48 @@ namespace IISCI.Web.Controllers
             string formValue = Request.Form["formModel"];
 
             var model = JsonConvert.DeserializeObject<BuildConfig>(formValue);
-            if (string.IsNullOrWhiteSpace(model.SiteId)) {
-                model.SiteId = id;
-            }
-            JsonStorage.WriteFile(model, path);
+            SaveConfig(id, path, model, false);
 
-            string lastBuildFile = IISStore + "\\" + id + "\\last-build.json";
+            string lastBuildFile = model.BuildFolder + "\\last-build.json";
             var lastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(lastBuildFile);
-            if (lastBuild == null) {
+            if (lastBuild == null)
+            {
                 lastBuild = new LastBuild();
             }
             lastBuild.Error = "Config changed";
             JsonStorage.WriteFile(lastBuild, lastBuildFile);
             return Json(model);
         }
+
+        private void SaveConfig(string id, string path, BuildConfig model, bool onlyIfModified = true)
+        {
+            bool modified = false;
+            if (string.IsNullOrWhiteSpace(model.SiteId))
+            {
+                model.SiteId = id;
+                modified = true;
+            }
+            if (string.IsNullOrWhiteSpace(model.TriggerKey))
+            {
+                model.TriggerKey = CreateBuildKey();
+                modified = true;
+            }
+
+            string bf = model.BuildFolder;
+            model.BuildFolder = IISStore + "\\" + BuildSourceMaps.Instance.Get(model.BuildSourceKey);
+            if (bf != model.BuildFolder) {
+                modified = true;
+            }
+
+            if (onlyIfModified)
+            {
+                if (!modified)
+                    return;
+            }
+            JsonStorage.WriteFile(model, path);
+        }
+
+        
 
         [Authorize]
         public ActionResult GenerateBuildKey(){
@@ -152,5 +178,8 @@ namespace IISCI.Web.Controllers
     }
 
 
-
+    public class BuildSourceMap {
+        public string Id { get; set; }
+        public string SourceKey { get; set; }
+    }
 }

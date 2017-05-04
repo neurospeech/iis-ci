@@ -115,6 +115,7 @@
     </Compile>
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BuildActionResult.cs" />
+    <Compile Include="Controllers\BuildSourceMaps.cs" />
     <Compile Include="Controllers\FilesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\IISCIProcess.cs" />

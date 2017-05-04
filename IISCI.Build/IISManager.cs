@@ -22,12 +22,8 @@ namespace IISCI.Build
                 {
                     site = mgr.Sites.FirstOrDefault(x => x.Name == config.SiteId);
                 }
-                else
-                {
-                    site = mgr.Sites.FirstOrDefault(x => x.Bindings.Any(a => a.Host == config.SiteHost));
-                }
                 if (site == null) {
-                    throw new KeyNotFoundException("No site with binding " + config.SiteHost + " found in IIS");
+                    throw new KeyNotFoundException("No site with id " + config.SiteId + " found in IIS");
                 }
 
                 var app = site.Applications.FirstOrDefault();
@@ -42,7 +38,8 @@ namespace IISCI.Build
                 if (config.DeployNewFolder)
                 {
 
-                    string newFolder = Guid.NewGuid().ToString().Trim('{', '}');
+                    //string newFolder = Guid.NewGuid().ToString().Trim('{', '}');
+                    string newFolder = DateTime.Now.ToString("yyyy-MMM-dd-hh-mm-ss");
                     DirectoryInfo deploymentFolder = rootDir.Parent.CreateSubdirectory(config.SiteId + "-" + newFolder, rootDir.GetAccessControl());
                     rootFolder = deploymentFolder.FullName;
                 }

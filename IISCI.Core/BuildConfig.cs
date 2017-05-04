@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,11 +16,32 @@ namespace IISCI
             DeployNewFolder = true;
         }
 
+        [JsonIgnore]
+        public string BuildSourceKey {
+            get {
+                JsonSerializerSettings s = new JsonSerializerSettings();
+                s.NullValueHandling = NullValueHandling.Ignore;
+                s.MissingMemberHandling = MissingMemberHandling.Ignore;
+                s.Formatting = Formatting.None;
+                string key = JsonConvert.SerializeObject(new
+                {
+                    A = SourceType?.ToLower(),
+                    B = SourceUrl?.ToLower(),
+                    C = SourceBranch?.ToLower(),
+                    D = Domain?.ToLower(),
+                    E = Username?.ToLower(),
+                    F = Password?.ToLower(),
+                    G = Collection?.ToLower(),
+                    H = RootFolder?.ToLower(),
+                    I = SolutionPath?.ToLower(),
+                    J = WebProjectPath?.ToLower()
+                },s);
+
+                return key;
+            }
+        }
+
         public string SiteId { get; set; }
-
-        public string SiteHost { get; set; }
-
-        public string SiteRoot { get; set; }
 
         public string BuildFolder { get; set; }
 
