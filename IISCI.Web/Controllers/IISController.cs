@@ -57,7 +57,7 @@ namespace IISCI.Web.Controllers
                     throw new UnauthorizedAccessException();
             }
 
-            if (string.IsNullOrWhiteSpace(model.SiteId))
+            if (model.SiteId != id)
             {
                 model.SiteId = id;
                 JsonStorage.WriteFile(model, configPath);

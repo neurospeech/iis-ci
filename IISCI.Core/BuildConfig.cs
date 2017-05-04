@@ -12,6 +12,7 @@ namespace IISCI
         public BuildConfig()
         {
             UseMSBuild = true;
+            DeployNewFolder = true;
         }
 
         public string SiteId { get; set; }
