@@ -37,6 +37,7 @@ namespace IISCI.Web.Controllers
                 {
                     if (!BuildInProgress.Contains(config.BuildFolder))
                     {
+                        BuildInProgress.Add(config.BuildFolder);
                         break;
                     }
                 }
@@ -45,9 +46,6 @@ namespace IISCI.Web.Controllers
                 response.Flush();
             }
 
-            lock (BuildInProgress) {
-                BuildInProgress.Add(config.BuildFolder);
-            }
             
         }
 
