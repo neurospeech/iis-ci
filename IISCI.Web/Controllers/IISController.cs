@@ -37,7 +37,7 @@ namespace IISCI.Web.Controllers
         }
 
         private string GetConfigPath(string id) {
-            return IISStore + "\\config\\" + id + ".json");
+            return IISStore + "\\config\\" + id + ".json";
         }
 
         [Authorize]
