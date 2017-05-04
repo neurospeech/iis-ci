@@ -12,7 +12,6 @@
     </script>
 
     <div class="data-form"
-         atom-template-name="config"
          atom-data="[AtomPromise.json('/iis/getbuildconfig', { id: $appScope.id })]"
          atom-post-url="[Atom.url('/iis/updatebuildconfig',{ id: $appScope.id })]"
          atom-success-message="Config saved successfully"
