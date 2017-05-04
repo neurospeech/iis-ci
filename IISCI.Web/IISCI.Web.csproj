@@ -142,11 +142,9 @@
     </Content>
     <None Include="Properties\PublishProfiles\Local.pubxml" />
     <Content Include="Scripts\app.js" />
-    <None Include="Scripts\jquery-3.1.1.intellisense.js" />
-    <Content Include="Scripts\jquery-3.1.1.js" />
-    <Content Include="Scripts\jquery-3.1.1.min.js" />
-    <Content Include="Scripts\jquery-3.1.1.slim.js" />
-    <Content Include="Scripts\jquery-3.1.1.slim.min.js" />
+    <None Include="Scripts\jquery-2.2.4.intellisense.js" />
+    <Content Include="Scripts\jquery-2.2.4.js" />
+    <Content Include="Scripts\jquery-2.2.4.min.js" />
     <Content Include="Scripts\web-atoms\plugins\entity-framework\entity-context.js" />
     <Content Include="Scripts\web-atoms\plugins\entity-framework\entity-controls.js" />
     <Content Include="Scripts\web-atoms\plugins\entity-framework\entity.css" />
@@ -198,8 +196,6 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
-    <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
-    <Content Include="Scripts\jquery-3.1.1.min.map" />
     <Content Include="Views\Home\Site.cshtml" />
     <Content Include="Scripts\web-atoms\web-atoms.min.js.map" />
     <Content Include="Scripts\web-atoms\style\src\view-stack.css.map" />
@@ -214,6 +210,7 @@
     <Content Include="Scripts\web-atoms\style\atoms.css.map" />
     <Content Include="Scripts\web-atoms\plugins\upload\atom-uploader.css.map" />
     <Content Include="Scripts\web-atoms\plugins\entity-framework\entity.css.map" />
+    <Content Include="Scripts\jquery-2.2.4.min.map" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
