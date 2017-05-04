@@ -46,6 +46,8 @@ namespace IISCI
         public string MSBuildConfig { get; set; }
         public string MSBuildParameters { get; set; }
 
+        public bool DeployNewFolder { get; set; }
+
         public bool DeleteLocalFiles { get; set; }
 
         public string Notify { get; set; }

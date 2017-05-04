@@ -31,11 +31,26 @@ namespace IISCI.Build
                 }
 
                 var app = site.Applications.FirstOrDefault();
-                site.Stop();
+
+
 
                 // copy all files...
                 var dir = app.VirtualDirectories.FirstOrDefault();
                 var rootFolder = dir.PhysicalPath;
+                DirectoryInfo rootDir = new DirectoryInfo(rootFolder);
+
+                if (config.DeployNewFolder)
+                {
+
+                    string newFolder = Guid.NewGuid().ToString().Trim('{', '}');
+                    DirectoryInfo deploymentFolder = rootDir.Parent.CreateSubdirectory(config.SiteId + "-" + newFolder, rootDir.GetAccessControl());
+                    rootFolder = deploymentFolder.FullName;
+                }
+                else
+                {
+                    site.Stop();
+                }
+
 
                 if (config.UseMSBuild) {
                     DeployWebProject(config, rootFolder);
@@ -49,7 +64,17 @@ namespace IISCI.Build
                 
                 File.WriteAllText(configFile.FullName, webConfig , UnicodeEncoding.Unicode);
 
-                site.Start();
+                if (config.DeployNewFolder)
+                {
+                    dir.PhysicalPath = rootFolder;                    
+                    mgr.CommitChanges();
+
+                    rootDir.Delete(true);
+                }
+                else
+                {
+                    site.Start();
+                }
             }
         }
 

@@ -16,7 +16,11 @@ namespace IISCI.Web.Controllers
         public ActionResult Index() {
 
             return View();
-        } 
+        }
+
+        public ActionResult Site(string id) {
+            return View();
+        }
 
     }
 }
