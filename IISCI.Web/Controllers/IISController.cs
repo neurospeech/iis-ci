@@ -117,7 +117,7 @@ namespace IISCI.Web.Controllers
         private void SaveConfig(string id, string path, BuildConfig model, bool onlyIfModified = true)
         {
             bool modified = false;
-            if (string.IsNullOrWhiteSpace(model.SiteId))
+            if (model.SiteId != id)
             {
                 model.SiteId = id;
                 modified = true;
