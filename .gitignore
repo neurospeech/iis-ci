@@ -1,3 +1,4 @@
+IISCI.Core/obj/*
 IISCI.Web/obj/*
 IISCI.Web/bin/*
 TFSRestAPI/obj/*
@@ -14,3 +15,4 @@ packages/*
 /IISCI.Git/bin/Debug
 /IISCI.Git/obj/Debug
 /publish
+.vs/*
