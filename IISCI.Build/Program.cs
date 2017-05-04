@@ -14,9 +14,17 @@ namespace IISCI.Build
 
         static void Main(string[] args)
         {
-            string siteRoot = args[0];
 
-            string buildFolder = args[1];
+            var dictionary = args
+                .Select(x => x.Split(new char[] { '=' }, 2).Select(s => s.Trim()))
+                .Where(x => x.Count() == 2)
+                .ToDictionary(x => x.FirstOrDefault(), x => x.LastOrDefault());
+
+
+
+            string id = dictionary["id"];
+            string configPath = dictionary["config"].Trim('"');
+            string buildFolder = dictionary["build"].Trim('"');
 
             string configXDT = null;
             if (args.Length > 2)
@@ -24,8 +32,8 @@ namespace IISCI.Build
                 configXDT = args[2];
             }
 
-            BuildConfig config = JsonStorage.ReadFile<BuildConfig>(buildFolder + "\\build-config.json");
-            config.SiteHost = siteRoot;
+            BuildConfig config = JsonStorage.ReadFile<BuildConfig>(config);
+            
             config.BuildFolder = buildFolder;
 
             var lastBuild = Execute(config);

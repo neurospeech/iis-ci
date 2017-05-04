@@ -18,6 +18,8 @@
          atom-next="{ $x.confirm('Do you want to build the site?', [
              $x.localWindow({
                                 path: 'buildWindow',
+                                windowHeight: 600,
+                                windowWidth: 800,
                                 scope: {
                                     url: '/iis/build?id=' + $appScope.id
                                 }

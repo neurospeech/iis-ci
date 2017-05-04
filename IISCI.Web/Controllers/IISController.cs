@@ -45,9 +45,10 @@ namespace IISCI.Web.Controllers
         {
             string buildPath = IISStore + "\\" + id;
 
-            string commandLine = id + " \"" + buildPath + "\"" ;
 
             string configPath = GetConfigPath(id);
+
+            string commandLine = "id=" + id + " config=\"" + configPath + "\" build=\"" + buildPath + "\"";
 
             var model = JsonStorage.ReadFile<BuildConfig>(configPath);
             if (!string.IsNullOrWhiteSpace(key))
