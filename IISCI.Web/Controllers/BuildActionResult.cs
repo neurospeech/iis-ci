@@ -29,6 +29,7 @@ namespace IISCI.Web.Controllers
         private static List<string> BuildInProgress = new List<string>();
 
         private bool reset;
+        private bool deployIfBuilt;
 
         private void WaitForBuild(BuildConfig config, TextWriter response) {
             while (true)
@@ -44,6 +45,9 @@ namespace IISCI.Web.Controllers
                 Thread.Sleep(1000);
                 response.Write(" ");
                 response.Flush();
+
+                //reset = true;
+                deployIfBuilt = true;
             }
 
             
@@ -82,7 +86,9 @@ namespace IISCI.Web.Controllers
                 }
 
 
-                
+                if (deployIfBuilt) {
+                    parameters += " redeploy=yes";
+                }
 
 
                 var executable = Server.MapPath("/") + "\\bin\\IISCI.build.exe";

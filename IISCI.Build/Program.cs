@@ -26,6 +26,14 @@ namespace IISCI.Build
             string configPath = dictionary["config"].Trim('"');
             string buildFolder = dictionary["build"].Trim('"');
 
+            bool redeploy = false;
+            string v;
+            if (dictionary.TryGetValue("redeploy", out v)) {
+                redeploy = v?.Equals("yes", StringComparison.OrdinalIgnoreCase) ?? false;
+            }
+
+
+
             string configXDT = null;
             if (args.Length > 2)
             {
@@ -36,7 +44,7 @@ namespace IISCI.Build
             
             config.BuildFolder = buildFolder;
 
-            var lastBuild = Execute(config);
+            var lastBuild = Execute(config, redeploy);
             JsonStorage.WriteFile(lastBuild, buildFolder + "\\last-build.json");
 
             if (lastBuild.Success)
@@ -50,7 +58,7 @@ namespace IISCI.Build
 
         }
 
-        private static LastBuild Execute(BuildConfig config)
+        private static LastBuild Execute(BuildConfig config, bool redeploy = false)
         {
             try
             {
@@ -59,7 +67,7 @@ namespace IISCI.Build
 
                 var result = DownloadFilesAsync(config, buildFolder).Result;
 
-                if (result == 0)
+                if (!redeploy && result == 0)
                 {
                     var lb = JsonStorage.ReadFileOrDefault<LastBuild>(buildFolder + "\\last-build.json");
                     if (lb == null || string.IsNullOrWhiteSpace(lb.Error))
