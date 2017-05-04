@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -16,13 +17,39 @@ namespace IISCI.Web.Controllers
 
         BuildConfig config;
 
-        public BuildActionResult(BuildConfig config, string cmdLine)
+        public BuildActionResult(BuildConfig config, string cmdLine, bool reset)
         {
             parameters = cmdLine;
             this.config = config;
+            this.reset = reset;
         }
 
+        private static List<string> DeployInProgress = new List<string>();
+
         private static List<string> BuildInProgress = new List<string>();
+
+        private bool reset;
+
+        private void WaitForBuild(BuildConfig config, TextWriter response) {
+            while (true)
+            {
+                lock (BuildInProgress)
+                {
+                    if (!BuildInProgress.Contains(config.BuildFolder))
+                    {
+                        break;
+                    }
+                }
+                Thread.Sleep(1000);
+                response.Write(" ");
+                response.Flush();
+            }
+
+            lock (BuildInProgress) {
+                BuildInProgress.Add(config.BuildFolder);
+            }
+            
+        }
 
         public override void ExecuteResult(ControllerContext context)
         {
@@ -31,19 +58,34 @@ namespace IISCI.Web.Controllers
             var Server = HttpContext.Server;
             var Response = HttpContext.Response.Output;
 
-            lock (BuildInProgress)
+            lock (DeployInProgress)
             {
-                if (BuildInProgress.Contains(parameters))
+                if (DeployInProgress.Contains(parameters))
                 {
                     Response.WriteLine("Build already in progress");
                     Response.Flush();
                     return;
                 }
-                BuildInProgress.Add(parameters);
+                DeployInProgress.Add(parameters);
             }
 
             try
             {
+
+                WaitForBuild(config, Response);
+
+                if (reset)
+                {
+                    var file = new System.IO.FileInfo(config.BuildFolder + "\\local-repository.json");
+                    if (file.Exists)
+                    {
+                        file.Delete();
+                    }
+                }
+
+
+                
+
 
                 var executable = Server.MapPath("/") + "\\bin\\IISCI.build.exe";
 
@@ -100,9 +142,12 @@ namespace IISCI.Web.Controllers
 
             }
             finally {
-                lock (BuildInProgress)
+                lock (DeployInProgress)
                 {
-                    BuildInProgress.Remove(parameters);
+                    DeployInProgress.Remove(parameters);
+                }
+                lock (BuildInProgress) {
+                    BuildInProgress.Remove(config.BuildFolder);
                 }
             }
 

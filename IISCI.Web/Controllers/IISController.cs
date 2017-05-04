@@ -62,14 +62,8 @@ namespace IISCI.Web.Controllers
             string buildPath = model.BuildFolder;
             string commandLine = "id=" + id + " config=\"" + configPath + "\" build=\"" + buildPath + "\"";
 
-            if (reset) {
-                var file = new System.IO.FileInfo(buildPath + "\\local-repository.json");
-                if (file.Exists) {
-                    file.Delete();
-                }
-            }
 
-            return new BuildActionResult(model,commandLine);
+            return new BuildActionResult(model,commandLine, reset);
 
 
         }
