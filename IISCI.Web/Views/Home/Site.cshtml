@@ -50,6 +50,7 @@
          atom-next="{ $x.confirm('Do you want to build the site?', [
              $x.localWindow({
                                 path: 'buildWindow',
+                                title: 'Building ' + $appScope.id,
                                 windowHeight: 600,
                                 windowWidth: 800,
                                 scope: {
@@ -221,17 +222,23 @@
                 </button>
 
                 <button atom-event-click="{ $x.localWindow({
-                            path: 'buildWindow',
-                            scope: {
-                                url: '/iis/build?id=' + $appScope.id
-                            }
-                        }) }">
+                                path: 'buildWindow',
+                                title: 'Building ' + $appScope.id,
+                                windowHeight: 600,
+                                windowWidth: 800,
+                                scope: {
+                                    url: '/iis/build?id=' + $appScope.id
+                                }
+                            }) }">
                     Build
                 </button>
 
                 <button atom-event-click="{ 
                             $x.localWindow({
                                 path: 'buildWindow',
+                                title: 'Building ' + $appScope.id,
+                                windowHeight: 600,
+                                windowWidth: 800,
                                 scope: {
                                     url: '/iis/build?id=' + $appScope.id + '&reset=true'
                                 }

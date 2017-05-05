@@ -16,7 +16,7 @@
 <body>
     <div atom-type="AtomApplication">
         <header>
-            <h1>IIS Continuous Integration</h1>
+            <h1 atom-text="[$appScope.id]">IIS Continuous Integration</h1>
         </header>
         @if (!Request.IsSecureConnection)
         {
