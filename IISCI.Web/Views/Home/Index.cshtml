@@ -42,7 +42,7 @@
             <tr atom-template="itemTemplate">
                 <td><a 
                        atom-href="{ Atom.url('/home/site' , { id: $data.Id}) }"
-                       atom-target="{$data.id}"
+                       atom-target="{$data.Name}"
                        atom-text="{$data.Name}"></a></td>
                 <td atom-text="{($data.Bindings).join(', ')}"></td>
                 <td class="button" atom-class="{ { error: $data.LastBuild.Error, success: !$data.LastBuild.ExitCode && $data.LastBuild.Time } }">
@@ -57,7 +57,7 @@
                 <td class="button">
                     <a 
                        atom-href="{ Atom.url('/home/site' , { id: $data.Id}) }"
-                       atom-target="{$data.id}">
+                       atom-target="{$data.Name}">
                         <button>Open</button>
                     </a>
                 </td>
