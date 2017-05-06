@@ -40,7 +40,10 @@
         </thead>
         <tbody atom-presenter="itemsPresenter">
             <tr atom-template="itemTemplate">
-                <td atom-text="{$data.Name}"></td>
+                <td><a 
+                       atom-href="{ Atom.url('/home/site' , { id: $data.Id}) }"
+                       atom-target="{$data.id}"
+                       atom-text="{$data.Name}"></a></td>
                 <td atom-text="{($data.Bindings).join(', ')}"></td>
                 <td class="button" atom-class="{ { error: $data.LastBuild.Error, success: !$data.LastBuild.ExitCode && $data.LastBuild.Time } }">
                     <span 
@@ -52,7 +55,9 @@
                 </td>
                 <td class="button" atom-text="{ $data.LastBuild.Time ? AtomDate.toDateTimeString($data.LastBuild.Time) : 'n/a' }"></td>
                 <td class="button">
-                    <a atom-href="{ Atom.url('/home/site' , { id: $data.Id}) }">
+                    <a 
+                       atom-href="{ Atom.url('/home/site' , { id: $data.Id}) }"
+                       atom-target="{$data.id}">
                         <button>Open</button>
                     </a>
                 </td>

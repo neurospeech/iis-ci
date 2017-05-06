@@ -182,7 +182,7 @@
                       atom-value="$[data.CustomXDT]"></textarea>
 
             <input atom-label="Build Trigger"
-                   atom-value="[$appScope.buildTrigger($appScope.site,$data.TriggerKey)]" />
+                   atom-value="[$appScope.buildTrigger($appScope.id,$data.TriggerKey)]" />
 
             <button atom-event-click="{ $appScope.resetBuildTrigger }">Reset Build Trigger</button>
 
