@@ -67,15 +67,11 @@ namespace IISCI.Build
 
                 var result = DownloadFilesAsync(config, buildFolder).Result;
 
-                if (!redeploy && result == 0)
+                if (!redeploy)
                 {
                     var lb = JsonStorage.ReadFileOrDefault<LastBuild>(config.BuildResult);
-                    if (lb == null || string.IsNullOrWhiteSpace(lb.Error))
+                    if (lb != null && lb.LastResult == result.LastVersion && string.IsNullOrWhiteSpace(lb.Error)  )
                     {
-                        if (lb == null)
-                        {
-                            lb = new LastBuild { Time = DateTime.UtcNow };
-                        }
                         lb.Log = "+++++++++++++++++++++ No changes to deploy +++++++++++++++++++++";
                         lb.ExitCode = 0;
                         lb.Error = "";
@@ -105,6 +101,8 @@ namespace IISCI.Build
 
                     lastBuild.Log += "\r\n+++++++++++++++++++++ Deployment Successful !!! +++++++++++++++++++++";
 
+                    lastBuild.LastResult = result.LastVersion;
+
                     return lastBuild;
                 }
                 else {
@@ -122,7 +120,12 @@ namespace IISCI.Build
 
         }
 
-        static async Task<int> DownloadFilesAsync(BuildConfig config, string buildFolder)
+        public class DownloadResult {
+            public int UpdatedFiles { get; set; }
+            public string LastVersion { get; set; }
+        }
+
+        static async Task<DownloadResult> DownloadFilesAsync(BuildConfig config, string buildFolder)
         {
             using (ISourceController ctrl = GetController(config))
             {
@@ -130,7 +133,9 @@ namespace IISCI.Build
                 {
                     ctrl.Initialize(config);
 
-                    List<ISourceItem> remoteItems = await ctrl.FetchAllFiles(config);
+                    SourceRepository r = await ctrl.FetchAllFiles(config);
+
+                    List<ISourceItem> remoteItems = r.Files;
                     var changes = rep.GetChanges(remoteItems).ToList();
 
                     var changeTypes = changes
@@ -178,7 +183,10 @@ namespace IISCI.Build
                         rep.UpdateFiles(slice);
                     }
 
-                    return updatedFiles.Count();
+                    return new DownloadResult {
+                        LastVersion = r.LatestVersion,
+                        UpdatedFiles = updatedFiles.Count()
+                    };
                 }
             }
         }
@@ -189,8 +197,8 @@ namespace IISCI.Build
 
             switch (sourceType)
             {
-                case "tfs2012":
-                    return new TFS2012Client();
+                //case "tfs2012":
+                //    return new TFS2012Client();
                 case "tfs2015":
                     return new TFS2015Client();
                 case "zipurl":

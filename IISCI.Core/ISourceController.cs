@@ -10,8 +10,16 @@ namespace IISCI
     {
         void Initialize(BuildConfig config);
 
-        Task<List<ISourceItem>> FetchAllFiles(BuildConfig config);
+        Task<SourceRepository> FetchAllFiles(BuildConfig config);
 
         Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath);
+    }
+
+    public class SourceRepository {
+
+        public string LatestVersion { get; set; }
+
+        public List<ISourceItem> Files { get; }
+            = new List<ISourceItem>();
     }
 }

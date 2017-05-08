@@ -38,19 +38,21 @@ namespace TFSRestAPI
             });
         }
 
-        public Task<List<ISourceItem>> FetchAllFiles(BuildConfig config)
+        public Task<SourceRepository> FetchAllFiles(BuildConfig config)
         {
             return Task.Run(() =>
             {
-                List<ISourceItem> list = new List<ISourceItem>();
-                var result = Server.GetItems(config.RootFolder, VersionSpec.Latest, RecursionType.Full, DeletedState.Any, ItemType.Any);
-                foreach (var item in result.Items) {
+                SourceRepository result = new SourceRepository();
+                result.LatestVersion = Server.GetLatestChangesetId().ToString();
+                List<ISourceItem> list = result.Files;
+                var items = Server.GetItems(config.RootFolder, VersionSpec.Latest, RecursionType.Full, DeletedState.Any, ItemType.Any);
+                foreach (var item in items.Items) {
                     if (item.DeletionId == 0)
                     {
                         list.Add(new TFS2015FileItem(item, config));
                     }
                 }
-                return list;
+                return result;
             });
         }
 

@@ -85,6 +85,9 @@ namespace IISCI.Web.Controllers
         }
 
         public void Invoke(string url) {
+
+            string path = HttpContext.Current.Server.MapPath("/") + "/log.txt";
+
             lock (InProgress)
             {
                 if (InProgress.Contains(url))
@@ -92,18 +95,28 @@ namespace IISCI.Web.Controllers
                 InProgress.Add(url);
             }
             ThreadPool.QueueUserWorkItem(a => {
-                while (true)
+                try
                 {
-                    using (WebClient client = new WebClient())
+                    while (true)
                     {
-                        var response = client.DownloadString(url);
-                        if (response.Contains("retry after sometime")) {
-                            Thread.Sleep(1000);
-                            continue;
+                        using (WebClient client = new WebClient())
+                        {
+                            var response = client.DownloadString(url);
+                            if (response.Contains("retry after sometime"))
+                            {
+                                Thread.Sleep(1000);
+                                continue;
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
+                catch (Exception ex) {
+                    System.IO.File.AppendAllText(path,
+                        DateTime.Now.ToLongDateString() + "\r\n" + "Failed for " + url + "\r\n" +
+                        ex.ToString());
+                }
+
                 lock (InProgress) {
                     InProgress.Remove(url);
                 }

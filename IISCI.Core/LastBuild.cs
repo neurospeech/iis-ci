@@ -8,6 +8,7 @@ namespace IISCI
 {
     public class LastBuild
     {
+        public string LastResult { get; set; }
         public string Error { get; set; }
         public string Log { get; set; }
         public DateTime? Time { get; set; }

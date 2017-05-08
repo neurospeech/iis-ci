@@ -27,12 +27,11 @@ namespace IISCI.Web.Controllers
             this.settingsPath = settingsPath;
         }
 
-        private static List<string> DeployInProgress = new List<string>();
+        private static Dictionary<string,string> DeployInProgress = new Dictionary<string, string>();
 
-        private static List<string> BuildInProgress = new List<string>();
+        private static Dictionary<string, string> BuildInProgress = new Dictionary<string, string>();
 
         private bool reset;
-        private bool deployIfBuilt;
         private string settingsPath;
 
         public override void ExecuteResult(ControllerContext context)
@@ -42,28 +41,29 @@ namespace IISCI.Web.Controllers
             var Server = HttpContext.Server;
             var Response = HttpContext.Response.Output;
 
-            lock (DeployInProgress)
-            {
-                if (DeployInProgress.Contains(parameters))
-                {
-                    Response.WriteLine("Deploy already in progress");
-                    Response.Flush();
-                    return;
-                }
-                DeployInProgress.Add(parameters);
-            }
-
-            lock (BuildInProgress) {
-                if (BuildInProgress.Contains(config.BuildFolder)) {
-                    Response.WriteLine("MSBuild already in progress, retry after sometime");
-                    Response.Flush();
-                    return;
-                }
-                BuildInProgress.Add(config.BuildFolder);
-            }
-
             try
             {
+                lock (DeployInProgress)
+                {
+                    if (DeployInProgress.ContainsKey(config.SiteId))
+                    {
+                        Response.WriteLine("Deploy already in progress");
+                        Response.Flush();
+                        return;
+                    }
+                    DeployInProgress[config.SiteId] = config.SiteId;
+                }
+
+                lock (BuildInProgress) {
+                    if (BuildInProgress.ContainsKey(config.BuildFolder)) {
+                        Response.WriteLine("MSBuild already in progress, retry after sometime");
+                        Response.Flush();
+
+                        return;
+                    }
+                    BuildInProgress[config.BuildFolder] = config.BuildFolder;
+                }
+
 
                 if (reset)
                 {
@@ -77,10 +77,6 @@ namespace IISCI.Web.Controllers
                         dir.Delete(true);
                     }
                 }
-
-
-                parameters += " redeploy=yes";
-
 
                 var executable = Server.MapPath("/") + "\\bin\\IISCI.build.exe";
 
@@ -154,7 +150,7 @@ namespace IISCI.Web.Controllers
             finally {
                 lock (DeployInProgress)
                 {
-                    DeployInProgress.Remove(parameters);
+                    DeployInProgress.Remove(config.SiteId);
                 }
                 lock (BuildInProgress) {
                     BuildInProgress.Remove(config.BuildFolder);

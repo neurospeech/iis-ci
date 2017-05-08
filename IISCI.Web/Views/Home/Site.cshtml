@@ -11,7 +11,6 @@
             sourceTypes: [
                 { label: 'Git', value: 'git' },
                 { label: 'TFS 2015', value: 'tfs2015' },
-                { label: 'TFS 2012 (Deprecated)', value: 'tfs2012' },
                 { label: 'Zip-Url', value: 'zipurl' }
             ],
             addConnectionString: function (scope, sender) {
@@ -44,6 +43,7 @@
 
 
     <div class="data-form"
+         id="siteForm"
          atom-data="[AtomPromise.json('/iis/getbuildconfig', { id: $appScope.id })]"
          atom-post-url="[Atom.url('/iis/updatebuildconfig',{ id: $appScope.id })]"
          atom-success-message="Config saved successfully"
@@ -216,24 +216,15 @@
             </table>
 
 
-            <div>
-                <button type="submit">
-                    Save
-                </button>
+        </div>
+    </div>
 
-                <button atom-event-click="{ $x.localWindow({
-                                path: 'buildWindow',
-                                title: 'Building ' + $appScope.id,
-                                windowHeight: 600,
-                                windowWidth: 800,
-                                scope: {
-                                    url: '/iis/build?id=' + $appScope.id
-                                }
-                            }) }">
-                    Build
-                </button>
 
-                <button atom-event-click="{ 
+</section>
+
+<footer class="atom-wizard-command-bar">
+
+    <button atom-event-click="{
                             $x.localWindow({
                                 path: 'buildWindow',
                                 title: 'Building ' + $appScope.id,
@@ -244,14 +235,40 @@
                                 }
                             })
                         }">
-                    Reset &amp; Build
-                </button>
-            </div>
-        </div>
-    </div>
+        Reset &amp; Build
+    </button>
+
+        <button atom-event-click="{ $x.localWindow({
+                                path: 'buildWindow',
+                                title: 'Building ' + $appScope.id,
+                                windowHeight: 600,
+                                windowWidth: 800,
+                                scope: {
+                                    url: '/iis/build?id=' + $appScope.id
+                                }
+                            }) }">
+            Build
+        </button>
+
+        <button atom-event-click="{ $x.localWindow({
+                                path: 'buildWindow',
+                                title: 'Building ' + $appScope.id,
+                                windowHeight: 600,
+                                windowWidth: 800,
+                                scope: {
+                                    url: '/iis/build?id=' + $appScope.id + '&redeploy=true'
+                                }
+                            }) }">
+            Redeploy
+        </button>
 
 
-</section>
+    <button atom-event-click="{$appScope.siteForm.submitCommand}">
+        Save
+    </button>
+
+
+</footer>
 
 <div atom-template-name="buildWindow" atom-type="AtomDockPanel">
     

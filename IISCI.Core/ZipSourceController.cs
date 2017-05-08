@@ -27,8 +27,13 @@ namespace IISCI
             Directory.CreateDirectory(zipFolder);
         }
 
-        public async Task<List<ISourceItem>> FetchAllFiles(BuildConfig config)
+        public async Task<SourceRepository> FetchAllFiles(BuildConfig config)
         {
+            var result = new SourceRepository();
+
+            var md5 = System.Security.Cryptography.MD5.Create();
+
+
             using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient()) {
                 using (var stream = await client.GetStreamAsync(config.SourceUrl)) {
                     using (var fs = File.OpenWrite(zipFile)) {
@@ -37,7 +42,9 @@ namespace IISCI
                 }
             }
 
-            List<ISourceItem> files = new List<ISourceItem>();
+            List<ISourceItem> files = result.Files;
+
+            result.LatestVersion = Convert.ToBase64String(md5.ComputeHash(File.ReadAllBytes(zipFile)));
 
             using (ZipFile zip = new ZipFile(zipFile)) {
                 foreach (ZipEntry entry in zip)
@@ -68,13 +75,12 @@ namespace IISCI
                 }
             }
 
-            var md5 = System.Security.Cryptography.MD5.Create();
 
             Parallel.ForEach(files, file => {
                 ((ZipSourceItem)file).Version = Convert.ToBase64String(md5.ComputeHash(File.ReadAllBytes(file.Url)));
             });
 
-            return files;
+            return result;
         }
 
         public async Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath)

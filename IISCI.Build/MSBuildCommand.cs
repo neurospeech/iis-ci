@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace IISCI.Build
@@ -45,7 +46,10 @@ namespace IISCI.Build
         }
 
         public LastBuild Build() {
-            FileInfo errorFile = new FileInfo(BuildFolder + "\\errors.txt");
+
+            string errorFileName = DateTime.Now.Ticks.ToString();
+
+            FileInfo errorFile = new FileInfo($"{BuildFolder}\\{errorFileName}.txt");
             if (errorFile.Exists)
                 errorFile.Delete();
 
@@ -55,13 +59,13 @@ namespace IISCI.Build
             batchFileContents += "\"" + BuildFolder + "\\source\\" + Solution + "\"";
             batchFileContents += " /t:Build ";
             batchFileContents += " /p:Configuration=" + BuildConfig;
-            batchFileContents += " /flp1:logfile=errors.txt;errorsonly";
+            batchFileContents += $" /flp1:logfile={errorFileName}.txt;errorsonly";
             if (!string.IsNullOrWhiteSpace(Parameters))
             {
                 batchFileContents += " " + Parameters;
             }
 
-            string batchFile = BuildFolder + "\\msbuild.bat";
+            string batchFile = $"{BuildFolder}\\{errorFileName}.bat";
 
             File.WriteAllText(batchFile, batchFileContents);
 
@@ -80,6 +84,24 @@ namespace IISCI.Build
                 if (n != 0)
                 {
                     error = errorFile.Exists ? File.ReadAllText(errorFile.FullName) : "";
+                }
+
+                Thread.Sleep(500);
+
+                try {
+                    if (errorFile.Exists) {
+                        errorFile.Delete();
+                    }
+                } catch (Exception ex) {
+                    sw.WriteLine(ex.ToString());
+                }
+
+                try {
+                    if (File.Exists(batchFile)) {
+                        File.Delete(batchFile);
+                    }
+                } catch (Exception ex){
+                    sw.WriteLine(ex.ToString());
                 }
 
                 return new LastBuild { 

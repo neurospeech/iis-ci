@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -73,6 +74,9 @@ namespace IISCI.Build
                     site.Start();
                 }
             }
+
+            Thread.Sleep(5000);
+
         }
 
         private void DeployWebProject(BuildConfig config, string rootFolder)

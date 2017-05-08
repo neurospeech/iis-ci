@@ -50,8 +50,13 @@
                           class="success-span">Success</span>
                     <button 
                             class="failed-button"
-                            atom-event-click="{ {appScope: { build:$data, 'frameView.url':'error' }} }"                            
-                            >Failed</button>
+                            atom-event-click="{$x.localWindow({
+                                path: 'errorWindow',
+                                title: 'Error ',
+                                data: $data,
+                                windowHeight: 600,
+                                windowWidth: 800
+                            })}">Failed</button>
                 </td>
                 <td class="button" atom-text="{ $data.LastBuild.Time ? AtomDate.toDateTimeString($data.LastBuild.Time) : 'n/a' }"></td>
                 <td class="button">
@@ -80,11 +85,10 @@
     
 </div>
 
-<div atom-template-name="error"
-     atom-data="{$appScope.build}"
-     style="overflow:auto">
+<div atom-template-name="errorWindow" 
+    atom-data="{$appScope.build}"
+    style="overflow:auto">
     <div>
-        <button atom-event-click="{$appScope.frameView.backCommand}">Back</button>
         <span atom-text="{$data.Name}"></span>
     </div>
     <pre atom-text="{$data.LastBuild.Log}"></pre>

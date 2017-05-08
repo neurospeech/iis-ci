@@ -17,8 +17,10 @@ namespace IISCI.Git
             this.config = config;
         }
 
-        public Task<List<ISourceItem>> FetchAllFiles(BuildConfig config)
+        public Task<SourceRepository> FetchAllFiles(BuildConfig config)
         {
+
+            var result = new SourceRepository();
 
             string gitFolder = config.BuildFolder + "\\git";
 
@@ -37,13 +39,14 @@ namespace IISCI.Git
 
                 CloneOptions clone = new CloneOptions();
                 clone.CredentialsProvider = CredentialsHandler;
-                var rep = Repository.Clone(config.SourceUrl, gitFolder, clone);
+                Repository.Clone(config.SourceUrl, gitFolder, clone);
 
                 Console.WriteLine("Repository clone successful");
             }
-            else {
-                Console.WriteLine("Fetching remote Repository");
-                var rep = new Repository(gitFolder);
+
+            Console.WriteLine("Fetching remote Repository");
+            using (var rep = new Repository(gitFolder))
+            {
                 FetchOptions options = new FetchOptions();
                 options.CredentialsProvider = CredentialsHandler;
                 Remote remote = rep.Network.Remotes["origin"];
@@ -52,30 +55,39 @@ namespace IISCI.Git
 
                 //rep.Fetch(remote.Name, options);
                 var master = rep.Branches[config.SourceBranch ?? "master"];
-                Commands.Pull(rep, new Signature("IISCI", "IISCI.IISCI@IISCI.IISCI", DateTime.Now),  new PullOptions()
+                var merge = Commands.Pull(rep, new Signature("IISCI", "IISCI.IISCI@IISCI.IISCI", DateTime.Now), new PullOptions()
                 {
                     FetchOptions = options,
-                    MergeOptions = new MergeOptions() { 
+                    MergeOptions = new MergeOptions()
+                    {
                         MergeFileFavor = MergeFileFavor.Theirs,
-                        CommitOnSuccess = true                        
+                        CommitOnSuccess = true
                     }
                 });
                 Console.WriteLine("Fetch successful");
+
+                result.LatestVersion = merge.Commit.Sha;
+
+                
             }
 
-            List<ISourceItem> files = new List<ISourceItem>();
+
+            List<ISourceItem> files = result.Files;
 
             EnumerateFiles( new DirectoryInfo(gitFolder), files, "" );
 
 
+            var md5 = System.Security.Cryptography.MD5.Create();
+
             Parallel.ForEach(files, file =>
             {
-                var md5 = System.Security.Cryptography.MD5.Create();
                 ((GitSourceItem)file).Version = Convert.ToBase64String(md5.ComputeHash(File.ReadAllBytes(file.Url)));
+                //((GitSourceItem)file).Version = result.LatestVersion;
             });
 
+            
 
-            return Task.FromResult(files);
+            return Task.FromResult(result);
         }
 
         private void EnumerateFiles(DirectoryInfo gitFolder, List<ISourceItem> list, string rootFolder)

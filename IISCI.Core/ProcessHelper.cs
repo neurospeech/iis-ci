@@ -26,35 +26,39 @@ namespace IISCI
             info.RedirectStandardOutput = true;
             info.WorkingDirectory = workingDirectory ?? System.IO.Path.GetDirectoryName(program);
 
-            Process p = new Process();
-            p.StartInfo = info;
-            p.EnableRaisingEvents = true;
-
-            AutoResetEvent wait = new AutoResetEvent(false);
-
-            p.Exited += (s, e) =>
+            using (Process p = new Process())
             {
-                wait.Set();
-            };
+                p.StartInfo = info;
+                p.EnableRaisingEvents = true;
 
-            p.OutputDataReceived += (s, e) =>
-            {
-                consoleAction(e.Data);
-            };
+                AutoResetEvent wait = new AutoResetEvent(false);
 
-            p.ErrorDataReceived += (s, e) =>
-            {
-                errorAction(e.Data);
-            };
+                p.Exited += (s, e) =>
+                {
+                    wait.Set();
+                };
 
-            p.Start();
-            p.BeginErrorReadLine();
-            p.BeginOutputReadLine();
-            
+                p.OutputDataReceived += (s, e) =>
+                {
+                    consoleAction(e.Data);
+                };
 
-            wait.WaitOne(5 * 60 * 1000);
+                p.ErrorDataReceived += (s, e) =>
+                {
+                    errorAction(e.Data);
+                };
 
-            return p.ExitCode;
+                p.Start();
+                p.BeginErrorReadLine();
+                p.BeginOutputReadLine();
+
+
+                wait.WaitOne(5 * 60 * 1000);
+
+                
+
+                return p.ExitCode;
+            }
 
         }
 

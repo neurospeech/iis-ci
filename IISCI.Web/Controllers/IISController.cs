@@ -72,7 +72,7 @@ namespace IISCI.Web.Controllers
         }
 
         [Authorize]
-        public ActionResult Build(string id, bool reset = false, string key = null)
+        public ActionResult Build(string id, bool redeploy= false, bool reset = false, string key = null)
         {
 
 
@@ -92,6 +92,9 @@ namespace IISCI.Web.Controllers
 
             string buildPath = model.BuildFolder;
             string commandLine = "id=" + id + " config=\"" + configPath + "\" build=\"" + buildPath + "\"";
+            if (redeploy) {
+                commandLine += " redeploy=true";
+            }
 
 
             return new BuildActionResult(model,commandLine, reset, SettingsPath);
@@ -138,6 +141,7 @@ namespace IISCI.Web.Controllers
                 lastBuild = new LastBuild();
             }
             lastBuild.Error = "Config changed";
+            lastBuild.LastResult = null;
             JsonStorage.WriteFile(lastBuild, lastBuildFile);
             return Json(model);
         }
@@ -198,7 +202,7 @@ namespace IISCI.Web.Controllers
                 IISWebRequest.Instance.Invoke(uri.Uri.ToString());
                 return Content("Request queued");
             }
-            return Build(id,reset,key);
+            return Build(id,true,reset,key);
         }
     }
 
