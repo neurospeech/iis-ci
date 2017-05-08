@@ -92,6 +92,67 @@
          atom-text="{$data.LastBuild.Error}"></pre>
 </div>
 
+<footer style="height:50px">
+    <button
+            atom-event-click="{$x.localWindow({
+                                path: 'settingsWindow',
+                                title: 'Settings',
+                                windowHeight: 600,
+                                windowWidth: 800
+                            })}"
+            >Settings</button> - SMTP Settings for sending email.
+</footer>
+
+<div atom-template-name="settingsWindow"
+     style="overflow:auto">
+    <form 
+          id="settingsForm"
+          atom-type="AtomForm"
+          atom-post-url="/iis/updatesettings"
+          atom-data="{AtomPromise.json('/iis/settings')}">
+        <div atom-type="AtomFormLayout">
+            <input atom-required="true"
+                   atom-label="From Name"
+                   atom-value="$[data.FromName]" />
+
+            <input 
+                   atom-label="From Email"
+                   atom-value="$[data.FromEmail]" />
+
+
+            <input 
+                   atom-required="true"
+                   atom-label="Host"
+                   atom-value="$[data.SMTPHost]" />
+            <input 
+                   atom-label="Port"
+                   atom-value="$[data.SMTPPort]" type="number" />
+
+            <input 
+                   atom-required="true"
+                   atom-label="Username"
+                   atom-value="$[data.Username]" />
+
+            <input 
+                   atom-required="true"
+                   atom-label="Password"
+                   atom-value="$[data.Password]" type="password" />
+
+            <input 
+                   atom-label="SSL"
+                   atom-checked="$[data.SSL]" type="checkbox"/>            
+
+        </div>
+    </form>
+
+    <div atom-template="commandTemplate">
+        <button atom-event-click="[$owner.templateParent.cancelCommand]">Cancel</button>
+
+        <button atom-event-click="[$appScope.settingsForm.submitCommand]">Save</button>
+    </div>
+
+</div>
+
 
 @*<section atom-template-name="files" 
      atom-type="AtomDockPanel"

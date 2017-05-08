@@ -1,6 +1,7 @@
 ﻿using Microsoft.Web.Administration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -12,18 +13,18 @@ namespace IISCI.Web.Controllers
 
         protected ServerManager ServerManager {get; private set;}
 
-        public static string IISStore = null;
+        public string IISStore {
+            get{
+                var f = new DirectoryInfo(Server.MapPath("/"));
+                return f.Parent.FullName + "\\store";
+            }
+        }
 
 
         public BaseController()
         {
 
             ServerManager = new ServerManager();
-
-            if (IISStore == null)
-            {
-                IISStore = System.Web.Configuration.WebConfigurationManager.AppSettings["IISCI.Store"];
-            }
 
         }
 

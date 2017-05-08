@@ -25,25 +25,29 @@ namespace IISCI
                 s.Formatting = Formatting.None;
                 string key = JsonConvert.SerializeObject(new
                 {
-                    A = SourceType?.ToLower(),
-                    B = SourceUrl?.ToLower(),
-                    C = SourceBranch?.ToLower(),
-                    D = Domain?.ToLower(),
-                    E = Username?.ToLower(),
-                    F = Password?.ToLower(),
-                    G = Collection?.ToLower(),
-                    H = RootFolder?.ToLower(),
-                    I = SolutionPath?.ToLower(),
-                    J = WebProjectPath?.ToLower()
-                },s);
+                    A = SourceType.ToNonNullLowerCase(),
+                    B = SourceUrl.ToNonNullLowerCase(),
+                    C = SourceBranch.ToNonNullLowerCase(),
+                    D = Domain.ToNonNullLowerCase(),
+                    E = Username.ToNonNullLowerCase(),
+                    F = Password.ToNonNullLowerCase(),
+                    G = Collection.ToNonNullLowerCase(),
+                    H = RootFolder.ToNonNullLowerCase(),
+                    I = SolutionPath.ToNonNullLowerCase(),
+                    J = WebProjectPath.ToNonNullLowerCase()
+                }, s);
 
                 return key;
+            }
+            set {
             }
         }
 
         public string SiteId { get; set; }
 
         public string BuildFolder { get; set; }
+
+        public string BuildResult { get; set; }
 
         public string SourceType { get; set; }
 
@@ -76,32 +80,35 @@ namespace IISCI
         public string Notify { get; set; }
 
         private List<StartUrl> _StartUrls = new List<StartUrl>();
-        public StartUrl[] StartUrls { 
-            get {
-                return _StartUrls.ToArray();
-            }
-            set {
-                _StartUrls.Clear();
-                if (value == null)
-                    return;
-                _StartUrls.AddRange(value);
-            }
-        }
+        public List<StartUrl> StartUrls { get { return _StartUrls; } }
+        //public StartUrl[] StartUrls {
+        //    get {
+        //        return _StartUrls.ToArray();
+        //    }
+        //    set {
+        //        _StartUrls.Clear();
+        //        if (value == null)
+        //            return;
+        //        _StartUrls.AddRange(value);
+        //    }
+        //}
 
         private List<BuildAppSetting> _AppSettings = new List<BuildAppSetting>();
-        public BuildAppSetting[] AppSettings { get {
-            return _AppSettings.ToArray();
-        }
-            set {
-                _AppSettings.Clear();
-                if (value == null)
-                    return;
-                _AppSettings.AddRange(value);
-            }
-        }
+        public List<BuildAppSetting> AppSettings { get { return _AppSettings; } }
+        //public BuildAppSetting[] AppSettings { get {
+        //    return _AppSettings.ToArray();
+        //}
+        //    set {
+        //        _AppSettings.Clear();
+        //        if (value == null)
+        //            return;
+        //        _AppSettings.AddRange(value);
+        //    }
+        //}
 
         private List<BuildConnectionString> _ConnectionStrings = new List<BuildConnectionString>();
-        public BuildConnectionString[] ConnectionStrings { get {
+        public List<BuildConnectionString> ConnectionStrings { get { return _ConnectionStrings; } }
+        /*public BuildConnectionString[] ConnectionStrings { get {
             return _ConnectionStrings.ToArray();
         }
             set {
@@ -110,7 +117,7 @@ namespace IISCI
                     return;
                 _ConnectionStrings.AddRange(value);
             }
-        }
+        }*/
 
         public string TriggerKey { get; set; }
 

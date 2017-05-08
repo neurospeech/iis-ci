@@ -10,6 +10,18 @@ using System.Web.Mvc;
 
 namespace IISCI.Web.Controllers
 {
+
+    public class SettingsModel
+    {
+        public string SMTPHost { get; set; }
+        public int SMTPPort { get; set; }
+        public string FromEmail { get; set; }
+        public string FromName { get; set; } = "IISCI Build";
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public bool SSL { get; set; }
+    }
+
     public class IISController : BaseController
     {
 
@@ -19,6 +31,25 @@ namespace IISCI.Web.Controllers
         {
         }
 
+
+
+        public string SettingsPath {
+            get {
+                return IISStore + "\\settings.json";
+            }
+        }
+
+        [Authorize]
+        public ActionResult Settings() {
+            return Json( JsonStorage.ReadFileOrDefault<SettingsModel>(SettingsPath), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize]
+        public ActionResult UpdateSettings(SettingsModel model) {
+
+            JsonStorage.WriteFile(model, SettingsPath);
+            return Content("\"Ok\"");
+        }
 
         [Authorize]
         public ActionResult Sites()
@@ -30,7 +61,7 @@ namespace IISCI.Web.Controllers
                 IISID = x.Id,
                 Name = x.Name,
                 Bindings = x.Bindings.Select(y => y.Host),
-                LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(GetBuildConfigModel(x.Name).BuildFolder + "\\last-build.json")
+                LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(GetBuildConfigModel(x.Name).BuildResult)
             }).ToList().OrderBy(x=>x.Id);
 
             return Json( sites, JsonRequestBehavior.AllowGet);
@@ -63,7 +94,7 @@ namespace IISCI.Web.Controllers
             string commandLine = "id=" + id + " config=\"" + configPath + "\" build=\"" + buildPath + "\"";
 
 
-            return new BuildActionResult(model,commandLine, reset);
+            return new BuildActionResult(model,commandLine, reset, SettingsPath);
 
 
         }
@@ -94,16 +125,13 @@ namespace IISCI.Web.Controllers
 
         [Authorize]
         [ValidateInput(false)]
-        public ActionResult UpdateBuildConfig(string id)
+        public ActionResult UpdateBuildConfig(string id, BuildConfig model)
         {
             string path = GetConfigPath(id);
 
-            string formValue = Request.Form["formModel"];
-
-            var model = JsonConvert.DeserializeObject<BuildConfig>(formValue);
             SaveConfig(id, path, model, false);
 
-            string lastBuildFile = model.BuildFolder + "\\last-build.json";
+            string lastBuildFile = model.BuildResult;
             var lastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(lastBuildFile);
             if (lastBuild == null)
             {
@@ -133,6 +161,9 @@ namespace IISCI.Web.Controllers
             if (bf != model.BuildFolder) {
                 modified = true;
             }
+
+            string br = model.BuildResult;
+            model.BuildResult = IISStore + "\\result\\" + id + ".json";
 
             if (onlyIfModified)
             {

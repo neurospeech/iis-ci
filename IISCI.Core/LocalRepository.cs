@@ -13,10 +13,10 @@ namespace IISCI
         SortedDictionary<string,LocalRepositoryFile> Files { get; set; }
         string LocalFile;
         public string LocalFolder { get; private set; }
-        public LocalRepository(string localFolder)
+        public LocalRepository(string localFolder, string id)
         {
             LocalFolder = localFolder + "\\Source\\";
-            LocalFile = localFolder + "\\local-repository.json";
+            LocalFile = localFolder + "\\state\\" + id + "\\local-repository.json";
             if (System.IO.File.Exists(LocalFile))
             {
                 Files = new SortedDictionary<string, LocalRepositoryFile>(JsonStorage.ReadFile<LocalRepositoryFile[]>(LocalFile).ToDictionary(x => x.Url));

@@ -45,7 +45,7 @@ namespace IISCI.Build
             config.BuildFolder = buildFolder;
 
             var lastBuild = Execute(config, redeploy);
-            JsonStorage.WriteFile(lastBuild, buildFolder + "\\last-build.json");
+            JsonStorage.WriteFile(lastBuild, config.BuildResult);
 
             if (lastBuild.Success)
             {
@@ -69,7 +69,7 @@ namespace IISCI.Build
 
                 if (!redeploy && result == 0)
                 {
-                    var lb = JsonStorage.ReadFileOrDefault<LastBuild>(buildFolder + "\\last-build.json");
+                    var lb = JsonStorage.ReadFileOrDefault<LastBuild>(config.BuildResult);
                     if (lb == null || string.IsNullOrWhiteSpace(lb.Error))
                     {
                         if (lb == null)
@@ -126,7 +126,7 @@ namespace IISCI.Build
         {
             using (ISourceController ctrl = GetController(config))
             {
-                using (LocalRepository rep = new LocalRepository(buildFolder))
+                using (LocalRepository rep = new LocalRepository(buildFolder, config.SiteId))
                 {
                     ctrl.Initialize(config);
 

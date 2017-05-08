@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -73,10 +74,38 @@ namespace IISCI.Web.Controllers
 
         public static IISWebRequest Instance = new IISWebRequest();
 
+        private static List<string> InProgress = new List<string>();
+
+        public static IEnumerable<string> InProgressUrls {
+            get {
+                lock (InProgress) {
+                    return InProgress.ToList();
+                }
+            }
+        }
+
         public void Invoke(string url) {
+            lock (InProgress)
+            {
+                if (InProgress.Contains(url))
+                    return;
+                InProgress.Add(url);
+            }
             ThreadPool.QueueUserWorkItem(a => {
-                using (WebClient client = new WebClient()) {
-                    client.DownloadData(url);
+                while (true)
+                {
+                    using (WebClient client = new WebClient())
+                    {
+                        var response = client.DownloadString(url);
+                        if (response.Contains("retry after sometime")) {
+                            Thread.Sleep(1000);
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                lock (InProgress) {
+                    InProgress.Remove(url);
                 }
             });
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IISCI.Web.Services;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using static IISCI.Web.Controllers.IISController;
 
 namespace IISCI.Web.Controllers
 {
@@ -17,11 +19,12 @@ namespace IISCI.Web.Controllers
 
         BuildConfig config;
 
-        public BuildActionResult(BuildConfig config, string cmdLine, bool reset)
+        public BuildActionResult(BuildConfig config, string cmdLine, bool reset, string settingsPath)
         {
             parameters = cmdLine;
             this.config = config;
             this.reset = reset;
+            this.settingsPath = settingsPath;
         }
 
         private static List<string> DeployInProgress = new List<string>();
@@ -30,28 +33,7 @@ namespace IISCI.Web.Controllers
 
         private bool reset;
         private bool deployIfBuilt;
-
-        private void WaitForBuild(BuildConfig config, TextWriter response) {
-            while (true)
-            {
-                lock (BuildInProgress)
-                {
-                    if (!BuildInProgress.Contains(config.BuildFolder))
-                    {
-                        BuildInProgress.Add(config.BuildFolder);
-                        break;
-                    }
-                }
-                Thread.Sleep(1000);
-                response.Write(" ");
-                response.Flush();
-
-                //reset = true;
-                deployIfBuilt = true;
-            }
-
-            
-        }
+        private string settingsPath;
 
         public override void ExecuteResult(ControllerContext context)
         {
@@ -64,31 +46,40 @@ namespace IISCI.Web.Controllers
             {
                 if (DeployInProgress.Contains(parameters))
                 {
-                    Response.WriteLine("Build already in progress");
+                    Response.WriteLine("Deploy already in progress");
                     Response.Flush();
                     return;
                 }
                 DeployInProgress.Add(parameters);
             }
 
+            lock (BuildInProgress) {
+                if (BuildInProgress.Contains(config.BuildFolder)) {
+                    Response.WriteLine("MSBuild already in progress, retry after sometime");
+                    Response.Flush();
+                    return;
+                }
+                BuildInProgress.Add(config.BuildFolder);
+            }
+
             try
             {
 
-                WaitForBuild(config, Response);
-
                 if (reset)
                 {
-                    var file = new System.IO.FileInfo(config.BuildFolder + "\\local-repository.json");
+                    /*var file = new System.IO.FileInfo(config.BuildFolder + "\\local-repository.json");
                     if (file.Exists)
                     {
                         file.Delete();
+                    }*/
+                    var dir = new System.IO.DirectoryInfo(config.BuildFolder);
+                    if (dir.Exists) {
+                        dir.Delete(true);
                     }
                 }
 
 
-                if (deployIfBuilt) {
-                    parameters += " redeploy=yes";
-                }
+                parameters += " redeploy=yes";
 
 
                 var executable = Server.MapPath("/") + "\\bin\\IISCI.build.exe";
@@ -121,7 +112,7 @@ namespace IISCI.Web.Controllers
 
                 try {
 
-                    using (SmtpClient smtp = new SmtpClient()) {
+                    /*using (SmtpClient smtp = new SmtpClient()) {
 
                         MailMessage msg = new MailMessage();
                         msg.From = new MailAddress("no-reply@800casting.com","IISCI Build");
@@ -136,7 +127,22 @@ namespace IISCI.Web.Controllers
                         msg.Body = "<div><h2>" + config.SiteId + "</h2>" + p.Error + p.Output + "</div><hr size='1'/><div style='text-align:right'><a href='https://github.com/neurospeech/iis-ci' target='_blank'>IISCI by NeuroSpeech&reg;</a></div>";
 
                         smtp.Send(msg);
+                    }*/
+
+                    string subject = string.Format("IISCI-Build: {0} for {1}", (p.Success ? "Success" : "Failed"), config.SiteId);
+                    string body = "<div><h2>" + config.SiteId + "</h2>" + p.Error + p.Output + "</div><hr size='1'/><div style='text-align:right'><a href='https://github.com/neurospeech/iis-ci' target='_blank'>IISCI by NeuroSpeech&reg;</a></div>";
+                    List<string> recipients = new List<string>();
+                    foreach (var item in config.Notify.Split(',', ';').Where(x => !string.IsNullOrWhiteSpace(x)))
+                    {
+                        if (!item.Contains('@'))
+                            continue;
+                        recipients.Add(item);
                     }
+
+
+                    SettingsModel settings = JsonStorage.ReadFileOrDefault<SettingsModel>(settingsPath);
+
+                    SmtpService.Instance.Send(settings, subject, body, recipients);
 
 
                 }
