@@ -123,6 +123,7 @@
     <Compile Include="..\IISCI.Core\Properties\AssemblyVersion.cs">
       <Link>Properties\AssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="Controllers\BackgroundTaskActionResult.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\BuildActionResult.cs" />
     <Compile Include="Controllers\BuildSourceMaps.cs" />

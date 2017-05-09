@@ -50,6 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackgroundTask.cs" />
+    <Compile Include="GlobalLock.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="BuildConfig.cs" />
     <Compile Include="IISCIEnumerableHelper.cs" />

@@ -84,6 +84,8 @@ namespace IISCI.Web.Controllers
             }
         }
 
+        public const string MSBuildRetryMessage = "MSBuild already in progress, retry after sometime";
+
         public void Invoke(string url) {
 
             string path = HttpContext.Current.Server.MapPath("/") + "/log.txt";
@@ -102,7 +104,7 @@ namespace IISCI.Web.Controllers
                         using (WebClient client = new WebClient())
                         {
                             var response = client.DownloadString(url);
-                            if (response.Contains("retry after sometime"))
+                            if (response.EndsWith(MSBuildRetryMessage))
                             {
                                 Thread.Sleep(1000);
                                 continue;

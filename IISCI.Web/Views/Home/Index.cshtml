@@ -45,7 +45,7 @@
                        atom-target="{$data.Name}"
                        atom-text="{$data.Name}"></a></td>
                 <td atom-text="{($data.Bindings).join(', ')}"></td>
-                <td class="button" atom-class="{ { error: $data.LastBuild.Error, success: !$data.LastBuild.ExitCode && $data.LastBuild.Time } }">
+                <td class="button" atom-class="{ { error: !$data.LastBuild.Success, success: !$data.LastBuild.ExitCode && $data.LastBuild.Time } }">
                     <span 
                           class="success-span">Success</span>
                     <button 
