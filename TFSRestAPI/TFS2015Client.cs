@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.TeamFoundation.VersionControl.Client;
+using System.IO;
 
 namespace TFSRestAPI
 {
@@ -34,8 +35,32 @@ namespace TFSRestAPI
                 if (file == null) {
                     throw new InvalidOperationException("Input=" + (item == null ? "null" : item.ToString()));
                 }
-                file.Item.DownloadFile(filePath);
+                //file.Item.DownloadFile(filePath);
+
+                if (!File.Exists(filePath)) {
+                    file.Item.DownloadFile(filePath);
+                    return;
+                }
+
+                string t = Path.GetTempFileName();
+                file.Item.DownloadFile(t);
+                var existing = File.ReadAllBytes(filePath);
+                var modified = File.ReadAllBytes(t);
+
+                // are both same..
+                if (!AreEqual(existing, modified)) {
+                    File.Delete(filePath);
+                    File.Copy(t, filePath);
+                    File.Delete(t);
+                }
             });
+        }
+
+        private bool AreEqual(byte[] existing, byte[] modified)
+        {
+            if (existing.Length != modified.Length)
+                return false;
+            return existing.SequenceEqual(modified);
         }
 
         public Task<SourceRepository> FetchAllFiles(BuildConfig config)
