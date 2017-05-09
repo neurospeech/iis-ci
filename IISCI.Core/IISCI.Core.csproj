@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="BackgroundTask.cs" />
     <Compile Include="GlobalLock.cs" />
+    <Compile Include="HashService.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="BuildConfig.cs" />
     <Compile Include="IISCIEnumerableHelper.cs" />

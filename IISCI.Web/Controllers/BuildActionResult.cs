@@ -64,6 +64,10 @@ namespace IISCI.Web.Controllers
                         {
                             file.Delete();
                         }*/
+                        var file = new System.IO.FileInfo(config.BuildResult);
+                        if (file.Exists) {
+                            file.Delete();
+                        }
                         var dir = new System.IO.DirectoryInfo(config.BuildFolder);
                         if (dir.Exists)
                         {

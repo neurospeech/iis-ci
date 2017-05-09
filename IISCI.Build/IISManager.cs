@@ -36,7 +36,7 @@ namespace IISCI.Build
                 var rootFolder = dir.PhysicalPath;
                 DirectoryInfo rootDir = new DirectoryInfo(rootFolder);
 
-                if (config.DeployNewFolder)
+                if (config.DeployInNewFolder)
                 {
 
                     //string newFolder = Guid.NewGuid().ToString().Trim('{', '}');
@@ -46,7 +46,10 @@ namespace IISCI.Build
                 }
                 else
                 {
-                    site.Stop();
+                    if (config.StopForDeploy)
+                    {
+                        site.Stop();
+                    }
                 }
 
 
@@ -62,7 +65,7 @@ namespace IISCI.Build
                 
                 File.WriteAllText(configFile.FullName, webConfig , UnicodeEncoding.Unicode);
 
-                if (config.DeployNewFolder)
+                if (config.DeployInNewFolder)
                 {
                     dir.PhysicalPath = rootFolder;                    
                     mgr.CommitChanges();
@@ -71,11 +74,14 @@ namespace IISCI.Build
                 }
                 else
                 {
-                    site.Start();
+                    if (config.StopForDeploy)
+                    {
+                        site.Start();
+                    }
                 }
             }
 
-            Thread.Sleep(5000);
+            //Thread.Sleep(5000);
 
         }
 

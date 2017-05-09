@@ -66,7 +66,9 @@ namespace IISCI.Git
                 });
                 Console.WriteLine("Fetch successful");
 
-                result.LatestVersion = merge.Commit.Sha;
+                result.LatestVersion = Convert.ToBase64String(rep.Head.Tip.Id.RawId);
+
+                
 
                 
             }
@@ -77,12 +79,11 @@ namespace IISCI.Git
             EnumerateFiles( new DirectoryInfo(gitFolder), files, "" );
 
 
-            var md5 = System.Security.Cryptography.MD5.Create();
+            //var md5 = System.Security.Cryptography.MD5.Create();
 
             Parallel.ForEach(files, file =>
             {
-                ((GitSourceItem)file).Version = Convert.ToBase64String(md5.ComputeHash(File.ReadAllBytes(file.Url)));
-                //((GitSourceItem)file).Version = result.LatestVersion;
+                ((GitSourceItem)file).Version = HashService.Instance.ComputeHash(file.Url);
             });
 
             

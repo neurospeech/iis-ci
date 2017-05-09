@@ -31,7 +31,7 @@ namespace IISCI
         {
             var result = new SourceRepository();
 
-            var md5 = System.Security.Cryptography.MD5.Create();
+            
 
 
             using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient()) {
@@ -44,7 +44,7 @@ namespace IISCI
 
             List<ISourceItem> files = result.Files;
 
-            result.LatestVersion = Convert.ToBase64String(md5.ComputeHash(File.ReadAllBytes(zipFile)));
+            result.LatestVersion = HashService.Instance.ComputeHash(zipFile);
 
             using (ZipFile zip = new ZipFile(zipFile)) {
                 foreach (ZipEntry entry in zip)
@@ -77,7 +77,7 @@ namespace IISCI
 
 
             Parallel.ForEach(files, file => {
-                ((ZipSourceItem)file).Version = Convert.ToBase64String(md5.ComputeHash(File.ReadAllBytes(file.Url)));
+                ((ZipSourceItem)file).Version = HashService.Instance.ComputeHash(file.Url);
             });
 
             return result;
