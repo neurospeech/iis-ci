@@ -58,12 +58,8 @@ namespace IISCI.Build
                 }
 
                 FileInfo configFile = new FileInfo(rootFolder + "\\Web.Config");
-                if (configFile.Exists)
-                {
-                    configFile.Delete();
-                }
                 
-                File.WriteAllText(configFile.FullName, webConfig , UnicodeEncoding.Unicode);
+                FileService.Instance.WriteAllText(configFile.FullName, webConfig , UnicodeEncoding.Unicode);
 
                 if (config.DeployInNewFolder)
                 {
@@ -106,19 +102,7 @@ namespace IISCI.Build
                 }
                 if (File.Exists(sourcePath))
                 {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        try
-                        {
-                            File.Copy(sourcePath, targetPath, true);
-                            return;
-                        }
-                        catch {
-                            if (i == 3)
-                                throw;
-                            Thread.Sleep(500);
-                        }
-                    }
+                    FileService.Instance.Copy(sourcePath, targetPath, true);
                 }
             };
 
