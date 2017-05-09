@@ -89,19 +89,32 @@ namespace IISCI.Build
 
             List<WebProjectFile> files = GetContentList(doc.Descendants()).ToList();
 
-            foreach (var file in files)
+            foreach(var file in files)
             {
                 var sourcePath = dir.FullName + "\\" + file.FilePath;
                 var targetPath = rootFolder + "\\" + file.WebPath;
                 string targetDir = System.IO.Path.GetDirectoryName(targetPath);
-                if (!Directory.Exists(targetDir)) {
+                if (!Directory.Exists(targetDir))
+                {
                     Directory.CreateDirectory(targetDir);
                 }
                 if (File.Exists(sourcePath))
                 {
-                    File.Copy(sourcePath, targetPath, true);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        try
+                        {
+                            File.Copy(sourcePath, targetPath, true);
+                            return;
+                        }
+                        catch {
+                            if (i == 3)
+                                throw;
+                            Thread.Sleep(500);
+                        }
+                    }
                 }
-            }
+            };
 
             dir = new DirectoryInfo(dir.FullName + "\\bin");
 

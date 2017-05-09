@@ -13,7 +13,7 @@ namespace IISCI
         public BuildConfig()
         {
             UseMSBuild = true;
-            DeployNewFolder = true;
+            
         }
 
         [JsonIgnore]
