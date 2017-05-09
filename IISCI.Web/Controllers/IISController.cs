@@ -41,7 +41,12 @@ namespace IISCI.Web.Controllers
 
         [Authorize]
         public ActionResult Settings() {
-            return Json( JsonStorage.ReadFileOrDefault<SettingsModel>(SettingsPath), JsonRequestBehavior.AllowGet);
+            return Json(JsonStorage.ReadFileOrDefault<SettingsModel>(SettingsPath), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize]
+        public ActionResult Locks(){
+            return Json(GlobalLock.GetActiveLocks(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize]

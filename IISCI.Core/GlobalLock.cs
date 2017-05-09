@@ -11,6 +11,12 @@ namespace IISCI
 
         private static Dictionary<string, string> locks = new Dictionary<string, string>();
 
+        public static IEnumerable<string> GetActiveLocks() {
+            lock (locks) {
+                return locks.Keys.ToList();
+            }
+        }
+
 
         private bool locked = false;
         private string lockName;

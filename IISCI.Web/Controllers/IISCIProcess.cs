@@ -90,37 +90,35 @@ namespace IISCI.Web.Controllers
 
             string path = HttpContext.Current.Server.MapPath("/") + "/log.txt";
 
-            lock (InProgress)
-            {
-                if (InProgress.Contains(url))
-                    return;
-                InProgress.Add(url);
-            }
             ThreadPool.QueueUserWorkItem(a => {
-                try
+
+                using (var urlLock = new GlobalLock(url))
                 {
-                    while (true)
+                    if (!urlLock.AcquireLock())
+                        return;
+                    try
                     {
-                        using (WebClient client = new WebClient())
+                        while (true)
                         {
-                            var response = client.DownloadString(url);
-                            if (response.EndsWith(MSBuildRetryMessage))
+                            using (WebClient client = new WebClient())
                             {
-                                Thread.Sleep(1000);
-                                continue;
+                                var response = client.DownloadString(url);
+                                if (response.Contains(MSBuildRetryMessage))
+                                {
+                                    Thread.Sleep(1000);
+                                    continue;
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
-                }
-                catch (Exception ex) {
-                    System.IO.File.AppendAllText(path,
-                        DateTime.Now.ToLongDateString() + "\r\n" + "Failed for " + url + "\r\n" +
-                        ex.ToString());
-                }
+                    catch (Exception ex)
+                    {
+                        System.IO.File.AppendAllText(path,
+                            DateTime.Now.ToLongDateString() + "\r\n" + "Failed for " + url + "\r\n" +
+                            ex.ToString());
+                    }
 
-                lock (InProgress) {
-                    InProgress.Remove(url);
                 }
             });
         }
