@@ -55,6 +55,7 @@ namespace IISCI.Git
 
                 //rep.Fetch(remote.Name, options);
                 var master = rep.Branches[config.SourceBranch ?? "master"];
+                
                 var merge = Commands.Pull(rep, new Signature("IISCI", "IISCI.IISCI@IISCI.IISCI", DateTime.Now), new PullOptions()
                 {
                     FetchOptions = options,
@@ -64,6 +65,12 @@ namespace IISCI.Git
                         CommitOnSuccess = true
                     }
                 });
+
+                if (config.SourceBranch != "master")
+                {
+                    Commands.Checkout(rep, master);
+                }
+
                 Console.WriteLine("Fetch successful");
 
                 result.LatestVersion = Convert.ToBase64String(rep.Head.Tip.Id.RawId);
