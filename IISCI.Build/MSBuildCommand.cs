@@ -86,8 +86,6 @@ namespace IISCI.Build
                     error = errorFile.Exists ? File.ReadAllText(errorFile.FullName) : "";
                 }
 
-                Thread.Sleep(500);
-
                 try {
                     if (errorFile.Exists) {
                         errorFile.Delete();

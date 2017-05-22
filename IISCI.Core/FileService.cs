@@ -20,12 +20,13 @@ namespace IISCI
                 try
                 {
                     action();
+                    break;
                 }
                 catch
                 {
                     if (max == 0)
                         throw;
-                    Thread.Sleep(500);
+                    Thread.Sleep(1000);
                 }
                 max--;
             }
