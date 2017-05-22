@@ -54,8 +54,29 @@ namespace IISCI.Git
                 //Commands.Fetch(rep,remote.Name,)
 
                 //rep.Fetch(remote.Name, options);
-                var master = rep.Branches[config.SourceBranch ?? "master"];
-                
+                if (!string.IsNullOrWhiteSpace(config.SourceBranch) && config.SourceBranch != "master")
+                {
+                    if (rep.Head.FriendlyName != config.SourceBranch) {
+
+                        Branch updatedBranch = rep.Branches[config.SourceBranch];
+                        if (updatedBranch == null)
+                        {
+                            string remoteBranchName = "origin/" + config.SourceBranch;
+                            var remoteBranch = rep.Branches.FirstOrDefault(x => x.FriendlyName == remoteBranchName);
+                            if (remoteBranch == null)
+                                throw new ArgumentException($"Branch {remoteBranch} not found in {string.Join(",", rep.Branches.Select(x => x.FriendlyName))}");
+
+                            var localBranch = rep.CreateBranch(config.SourceBranch, remoteBranch.Tip);
+
+                            updatedBranch = rep.Branches.Update(localBranch, x => x.TrackedBranch = remoteBranch.CanonicalName);
+                        }
+                        Commands.Checkout(rep, updatedBranch, new CheckoutOptions {
+                             CheckoutModifiers = CheckoutModifiers.Force
+                        });
+                         
+                    }
+                }
+
                 var merge = Commands.Pull(rep, new Signature("IISCI", "IISCI.IISCI@IISCI.IISCI", DateTime.Now), new PullOptions()
                 {
                     FetchOptions = options,
@@ -65,11 +86,6 @@ namespace IISCI.Git
                         CommitOnSuccess = true
                     }
                 });
-
-                if (config.SourceBranch != "master")
-                {
-                    Commands.Checkout(rep, master);
-                }
 
                 Console.WriteLine("Fetch successful");
 
