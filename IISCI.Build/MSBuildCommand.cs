@@ -84,6 +84,9 @@ namespace IISCI.Build
                 if (n != 0)
                 {
                     error = errorFile.Exists ? File.ReadAllText(errorFile.FullName) : "";
+                    if (string.IsNullOrWhiteSpace(error)) {
+                        error = sw.GetStringBuilder().ToString();
+                    }
                 }
 
                 try {
@@ -101,6 +104,8 @@ namespace IISCI.Build
                 } catch (Exception ex){
                     sw.WriteLine(ex.ToString());
                 }
+
+                
 
                 return new LastBuild { 
                     Error = error,
