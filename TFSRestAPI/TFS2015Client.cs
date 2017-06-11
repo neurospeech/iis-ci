@@ -6,8 +6,10 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Services.Common;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using System.IO;
+using Microsoft.VisualStudio.Services.OAuth;
 
 namespace TFSRestAPI
 {
@@ -83,11 +85,16 @@ namespace TFSRestAPI
 
         public void Initialize(BuildConfig config)
         {
-            NetworkCredential credentials = new NetworkCredential(config.Username, config.Password);
-            BasicAuthCredential basicCredentials = new BasicAuthCredential(credentials);
-            TfsClientCredentials cred = new TfsClientCredentials(basicCredentials);
-            cred.AllowInteractive = false;
-            tpc = new TfsTeamProjectCollection(new Uri(config.SourceUrl + "/" + config.Collection),cred);
+
+
+            VssCredentials c = null;
+
+            c = new VssCredentials(new VssBasicCredential(config.Username, config.Password));
+
+
+            c.PromptType = CredentialPromptType.DoNotPrompt;
+
+            tpc = new TfsTeamProjectCollection(new Uri(config.SourceUrl + "/" + config.Collection),c);
             
             tpc.Authenticate();
 
