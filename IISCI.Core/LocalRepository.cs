@@ -118,5 +118,10 @@ namespace IISCI
 
         [JsonIgnore]
         public ISourceItem Source { get; set; }
+
+        public Task DownloadAsync(string filePath)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

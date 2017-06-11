@@ -10,6 +10,8 @@ using Microsoft.VisualStudio.Services.Common;
 using Microsoft.TeamFoundation.VersionControl.Client;
 using System.IO;
 using Microsoft.VisualStudio.Services.OAuth;
+using Microsoft.VisualStudio.Services.WebApi;
+using Microsoft.TeamFoundation.SourceControl.WebApi;
 
 namespace TFSRestAPI
 {
@@ -19,6 +21,7 @@ namespace TFSRestAPI
         TfsTeamProjectCollection tpc;
 
         public VersionControlServer Server { get; private set; }
+        public VssConnection Conn { get; private set; }
 
         public void Dispose()
         {
@@ -30,22 +33,19 @@ namespace TFSRestAPI
 
         public Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath)
         {
-            return Task.Run(()=> {
+            return Task.Run(async ()=> {
                 
                 var local = item as LocalRepositoryFile;
-                var file = local==null ? (item as TFS2015FileItem) : local.Source as TFS2015FileItem;
-                if (file == null) {
-                    throw new InvalidOperationException("Input=" + (item == null ? "null" : item.ToString()));
-                }
-                //file.Item.DownloadFile(filePath);
+                if (local != null)
+                    return;
 
                 if (!File.Exists(filePath)) {
-                    file.Item.DownloadFile(filePath);
+                    await item.DownloadAsync(filePath);
                     return;
                 }
 
                 string t = Path.GetTempFileName();
-                file.Item.DownloadFile(t);
+                await item.DownloadAsync(t);
                 var existing = File.ReadAllBytes(filePath);
                 var modified = File.ReadAllBytes(t);
 
@@ -67,8 +67,17 @@ namespace TFSRestAPI
 
         public Task<SourceRepository> FetchAllFiles(BuildConfig config)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
+                if (this.Conn != null) {
+                    using (var client = this.Conn.GetClient<TfvcHttpClient>()) {
+                        List<TfvcItem> files = await client.GetItemsAsync(config.RootFolder, VersionControlRecursionType.Full);
+                        SourceRepository repo = new SourceRepository();
+                        repo.Files.AddRange( files.Where(x=>x.DeletionId == 0).Select(x => new TFSWebFileItem(x,Conn,config) ));
+                        return repo;
+                    }
+                }
+
                 SourceRepository result = new SourceRepository();
                 result.LatestVersion = Server.GetLatestChangesetId().ToString();
                 List<ISourceItem> list = result.Files;
@@ -83,9 +92,60 @@ namespace TFSRestAPI
             });
         }
 
+        public class TFSWebFileItem : ISourceItem
+        {
+            private TfvcItem x;
+            private VssConnection conn;
+
+            public TFSWebFileItem(TfvcItem x, VssConnection conn, BuildConfig config)
+            {
+                this.x = x;
+                this.conn = conn;
+                string path = x.Path;
+                path = path.Substring(config.RootFolder.Length);
+                Name = System.IO.Path.GetFileName(path);
+                Folder = path;
+                IsDirectory = x.IsFolder;
+                if (!x.IsFolder) {
+                    Folder = Folder.Substring(0, Folder.Length - Name.Length);
+                }
+                Url = x.Url;
+                this.Version = x.ChangesetVersion.ToString();
+            }
+
+            public string Name { get; set; }
+
+            public string Folder { get; set; }
+
+            public bool IsDirectory { get; set; }
+
+            public string Url {get;set;}
+
+            public string Version { get; set; }
+
+            public async Task DownloadAsync(string filePath)
+            {
+                using (var client = conn.GetClient<TfvcHttpClient>())
+                {
+                    using (var stream = await client.GetItemContentAsync(x.Path, null, true)) {
+                        using (var ostream = File.OpenWrite(filePath)) {
+                            await stream.CopyToAsync(ostream);
+                        }
+                    }
+                }
+            }
+        }
+
         public void Initialize(BuildConfig config)
         {
 
+            string username = string.IsNullOrWhiteSpace(config.Username) ? string.Empty : config.Username;
+
+            if (username == string.Empty)
+            {
+                InitializeWebApi(config);
+                return;
+            }
 
             VssCredentials c = null;
 
@@ -102,6 +162,21 @@ namespace TFSRestAPI
 
             this.Server = tpc.GetService<Microsoft.TeamFoundation.VersionControl.Client.VersionControlServer>();
             
+        }
+
+        private void InitializeWebApi(BuildConfig config)
+        {
+            VssCredentials c = null;
+
+            c = new VssCredentials(new VssBasicCredential(string.IsNullOrWhiteSpace(config.Username) ? String.Empty : config.Username, config.Password));
+
+
+            c.PromptType = CredentialPromptType.DoNotPrompt;
+
+            this.Conn = new VssConnection(new Uri(config.SourceUrl + "/" + config.Collection), c);
+
+            //this.Client = conn.GetClient<TfvcHttpClient>();
+
         }
 
         public class TFS2015FileItem : ISourceItem
@@ -146,6 +221,12 @@ namespace TFSRestAPI
             public string Version
             {
                 get;
+            }
+
+            public Task DownloadAsync(string filePath)
+            {
+                Item.DownloadFile(filePath);
+                return Task.CompletedTask;
             }
         }
 

@@ -188,6 +188,11 @@ namespace IISCI.Git
             get;
             set;
         }
+
+        public Task DownloadAsync(string filePath)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

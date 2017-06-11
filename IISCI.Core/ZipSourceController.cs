@@ -130,5 +130,10 @@ namespace IISCI
             get;
             set;
         }
+
+        public Task DownloadAsync(string filePath)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
