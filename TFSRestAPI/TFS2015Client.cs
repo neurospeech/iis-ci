@@ -89,7 +89,7 @@ namespace TFSRestAPI
 
             VssCredentials c = null;
 
-            c = new VssCredentials(new VssBasicCredential(config.Username, config.Password));
+            c = new VssCredentials(new VssBasicCredential(string.IsNullOrWhiteSpace(config.Username) ? String.Empty : config.Username, config.Password));
 
 
             c.PromptType = CredentialPromptType.DoNotPrompt;
