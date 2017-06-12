@@ -78,9 +78,6 @@
                    atom-label="TFS Domain"
                    atom-value="$[data.Domain]" />
 
-            <input atom-label="OAuth Token"
-                   type="password"
-                   atom-value="$[data.AccessToken]" />
 
             <input atom-label="Username"
                    atom-value="$[data.Username]" />
@@ -88,6 +85,11 @@
             <input atom-label="Password"
                    type="password"
                    atom-value="$[data.Password]" />
+
+            <div atom-field-visible="[/^tfs/i.test($data.SourceType)]">
+                For open access token, leave username blank and just enter token in password
+            </div>
+
 
             <input atom-field-visible="[/^tfs/i.test($data.SourceType)]"
                    atom-label="TFS Collection"

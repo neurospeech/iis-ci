@@ -22,9 +22,14 @@ namespace TFSRestAPI
 
         public VersionControlServer Server { get; private set; }
         public VssConnection Conn { get; private set; }
+        public TfvcHttpClient Client { get; private set; }
 
         public void Dispose()
         {
+            if (Client != null)
+            {
+                Client.Dispose();
+            }
             if (tpc != null)
             {
                 tpc.Dispose();
@@ -33,24 +38,30 @@ namespace TFSRestAPI
 
         public Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath)
         {
-            return Task.Run(async ()=> {
-                
+            return Task.Run(async () => {
+
                 var local = item as LocalRepositoryFile;
-                if (local != null)
+                if (local == null)
                     return;
 
-                if (!File.Exists(filePath)) {
-                    await item.DownloadAsync(filePath);
+                var src = local.Source;
+                if (src is LocalRepositoryFile)
+                    return;
+
+                if (!File.Exists(filePath))
+                {
+                    await src.DownloadAsync(filePath);
                     return;
                 }
 
                 string t = Path.GetTempFileName();
-                await item.DownloadAsync(t);
+                await src.DownloadAsync(t);
                 var existing = File.ReadAllBytes(filePath);
                 var modified = File.ReadAllBytes(t);
 
                 // are both same..
-                if (!AreEqual(existing, modified)) {
+                if (!AreEqual(existing, modified))
+                {
                     File.Delete(filePath);
                     File.Copy(t, filePath);
                     File.Delete(t);
@@ -69,20 +80,22 @@ namespace TFSRestAPI
         {
             return Task.Run(async () =>
             {
-                if (this.Conn != null) {
-                    using (var client = this.Conn.GetClient<TfvcHttpClient>()) {
-                        List<TfvcItem> files = await client.GetItemsAsync(config.RootFolder, VersionControlRecursionType.Full);
-                        SourceRepository repo = new SourceRepository();
-                        repo.Files.AddRange( files.Where(x=>x.DeletionId == 0).Select(x => new TFSWebFileItem(x,Conn,config) ));
-                        return repo;
-                    }
+                if (this.Conn != null)
+                {
+
+                    this.Client = Conn.GetClient<TfvcHttpClient>();
+                    List<TfvcItem> files = await Client.GetItemsAsync(config.RootFolder, VersionControlRecursionType.Full);
+                    SourceRepository repo = new SourceRepository();
+                    repo.Files.AddRange(files.Where(x => x.DeletionId == 0).Select(x => new TFSWebFileItem(x, Conn, config, Client)));
+                    return repo;
                 }
 
                 SourceRepository result = new SourceRepository();
                 result.LatestVersion = Server.GetLatestChangesetId().ToString();
                 List<ISourceItem> list = result.Files;
                 var items = Server.GetItems(config.RootFolder, VersionSpec.Latest, RecursionType.Full, DeletedState.Any, ItemType.Any);
-                foreach (var item in items.Items) {
+                foreach (var item in items.Items)
+                {
                     if (item.DeletionId == 0)
                     {
                         list.Add(new TFS2015FileItem(item, config));
@@ -97,8 +110,9 @@ namespace TFSRestAPI
             private TfvcItem x;
             private VssConnection conn;
 
-            public TFSWebFileItem(TfvcItem x, VssConnection conn, BuildConfig config)
+            public TFSWebFileItem(TfvcItem x, VssConnection conn, BuildConfig config, TfvcHttpClient client)
             {
+                this.Client = client;
                 this.x = x;
                 this.conn = conn;
                 string path = x.Path;
@@ -106,7 +120,8 @@ namespace TFSRestAPI
                 Name = System.IO.Path.GetFileName(path);
                 Folder = path;
                 IsDirectory = x.IsFolder;
-                if (!x.IsFolder) {
+                if (!x.IsFolder)
+                {
                     Folder = Folder.Substring(0, Folder.Length - Name.Length);
                 }
                 Url = x.Url;
@@ -120,20 +135,19 @@ namespace TFSRestAPI
 
             public bool IsDirectory { get; set; }
 
-            public string Url {get;set;}
+            public string Url { get; set; }
 
             public string Version { get; set; }
             public string ServerItem { get; private set; }
+            public TfvcHttpClient Client { get; private set; }
 
             public async Task DownloadAsync(string filePath)
             {
-                
-                using (var client = conn.GetClient<TfvcHttpClient>())
+                using (var stream = await Client.GetItemContentAsync(x.Path))
                 {
-                    using (var stream = await client.GetItemContentAsync(ServerItem)) {
-                        using (var ostream = File.OpenWrite(filePath)) {
-                            await stream.CopyToAsync(ostream);
-                        }
+                    using (var ostream = File.OpenWrite(filePath))
+                    {
+                        await stream.CopyToAsync(ostream);
                     }
                 }
             }
@@ -157,14 +171,14 @@ namespace TFSRestAPI
 
             c.PromptType = CredentialPromptType.DoNotPrompt;
 
-            tpc = new TfsTeamProjectCollection(new Uri(config.SourceUrl + "/" + config.Collection),c);
-            
+            tpc = new TfsTeamProjectCollection(new Uri(config.SourceUrl + "/" + config.Collection), c);
+
             tpc.Authenticate();
 
-            
+
 
             this.Server = tpc.GetService<Microsoft.TeamFoundation.VersionControl.Client.VersionControlServer>();
-            
+
         }
 
         private void InitializeWebApi(BuildConfig config)
@@ -186,7 +200,7 @@ namespace TFSRestAPI
         {
             public Item Item { get; }
 
-            public TFS2015FileItem(Item item,BuildConfig config)
+            public TFS2015FileItem(Item item, BuildConfig config)
             {
                 this.Item = item;
                 Version = item.ChangesetId.ToString();
@@ -195,7 +209,8 @@ namespace TFSRestAPI
                 this.Folder = path;
                 this.IsDirectory = item.ItemType == ItemType.Folder;
                 this.Name = System.IO.Path.GetFileName(path);
-                if (!this.IsDirectory) {
+                if (!this.IsDirectory)
+                {
                     Folder = Folder.Substring(0, Folder.Length - Name.Length);
                 }
                 this.Url = item.ServerItem;
