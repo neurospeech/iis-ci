@@ -127,7 +127,7 @@ namespace TFSRestAPI
             {
                 using (var client = conn.GetClient<TfvcHttpClient>())
                 {
-                    using (var stream = await client.GetItemContentAsync(x.Path, null, true)) {
+                    using (var stream = await client.GetItemContentAsync(x.Path)) {
                         using (var ostream = File.OpenWrite(filePath)) {
                             await stream.CopyToAsync(ostream);
                         }
