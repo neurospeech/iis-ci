@@ -111,6 +111,7 @@ namespace TFSRestAPI
                 }
                 Url = x.Url;
                 this.Version = x.ChangesetVersion.ToString();
+                this.Url = config.RootFolder + "/" + Folder + Name;
             }
 
             public string Name { get; set; }
@@ -122,12 +123,14 @@ namespace TFSRestAPI
             public string Url {get;set;}
 
             public string Version { get; set; }
+            public string ServerItem { get; private set; }
 
             public async Task DownloadAsync(string filePath)
             {
+                
                 using (var client = conn.GetClient<TfvcHttpClient>())
                 {
-                    using (var stream = await client.GetItemContentAsync(x.Path)) {
+                    using (var stream = await client.GetItemContentAsync(ServerItem)) {
                         using (var ostream = File.OpenWrite(filePath)) {
                             await stream.CopyToAsync(ostream);
                         }
@@ -148,8 +151,8 @@ namespace TFSRestAPI
             }
 
             VssCredentials c = null;
-
-            c = new VssCredentials(new VssBasicCredential(string.IsNullOrWhiteSpace(config.Username) ? String.Empty : config.Username, config.Password));
+            var swtc = new VssServiceIdentityCredential(username, config.Password);
+            c = new VssCredentials(swtc);
 
 
             c.PromptType = CredentialPromptType.DoNotPrompt;
