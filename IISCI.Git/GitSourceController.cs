@@ -189,6 +189,8 @@ namespace IISCI.Git
             set;
         }
 
+        public string Hash => Guid.NewGuid().ToString();
+
         public Task DownloadAsync(string filePath)
         {
             throw new NotImplementedException();

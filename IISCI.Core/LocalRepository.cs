@@ -116,6 +116,8 @@ namespace IISCI
         public bool IsDirectory { get; set; }
         public string FilePath { get; set; }
 
+        public string Hash { get; set; }
+
         [JsonIgnore]
         public ISourceItem Source { get; set; }
 

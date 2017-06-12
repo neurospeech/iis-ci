@@ -12,6 +12,7 @@ using System.IO;
 using Microsoft.VisualStudio.Services.OAuth;
 using Microsoft.VisualStudio.Services.WebApi;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
+using System.Security.Cryptography;
 
 namespace TFSRestAPI
 {
@@ -50,9 +51,29 @@ namespace TFSRestAPI
 
                 if (!File.Exists(filePath))
                 {
+                    local.Hash = src.Hash;
                     await src.DownloadAsync(filePath);
                     return;
                 }
+
+                //if (src.Hash == local.Hash)
+                //    return;
+
+                //// try to calculate hash..
+                //using (var md5 = MD5.Create())
+                //{
+                //    using (var s = File.OpenRead(filePath))
+                //    {
+                //        var hash = Convert.ToBase64String(md5.ComputeHash(s));
+                //        if (hash == src.Hash)
+                //        {
+                //            local.Hash = src.Hash;
+                //            return;
+                //        }
+                //    }
+                //}
+
+                //local.Hash = src.Hash;
 
                 string t = Path.GetTempFileName();
                 await src.DownloadAsync(t);
@@ -140,6 +161,8 @@ namespace TFSRestAPI
             public string Version { get; set; }
             public string ServerItem { get; private set; }
             public TfvcHttpClient Client { get; private set; }
+
+            public string Hash => x.HashValue;
 
             public async Task DownloadAsync(string filePath)
             {
@@ -240,6 +263,8 @@ namespace TFSRestAPI
             {
                 get;
             }
+
+            public string Hash => Convert.ToBase64String(Item.HashValue);
 
             public Task DownloadAsync(string filePath)
             {

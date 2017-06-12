@@ -19,6 +19,8 @@ namespace IISCI
 
         string Version { get;  }
 
+        string Hash { get; }
+
         Task DownloadAsync(string filePath);
     }
 }
