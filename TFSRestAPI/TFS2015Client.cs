@@ -110,7 +110,11 @@ namespace TFSRestAPI
                     
                     repo.Files.AddRange(files.Where(x => x.DeletionId == 0).Select(x => new TFSWebFileItem(x, Conn, config, Client)));
 
-                    repo.LatestVersion = files.OrderByDescending(x => x.ChangesetVersion).FirstOrDefault().ToString();
+                    repo.LatestVersion = files
+                        .Select(x=>x.ChangesetVersion)
+                        .OrderByDescending(x=>x)
+                        .FirstOrDefault()
+                        .ToString();
                     return repo;
                 }
 

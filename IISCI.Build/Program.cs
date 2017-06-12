@@ -72,7 +72,7 @@ namespace IISCI.Build
                     var lb = JsonStorage.ReadFileOrDefault<LastBuild>(config.BuildResult);
                     if (lb != null && lb.LastResult == result.LastVersion && string.IsNullOrWhiteSpace(lb.Error)  )
                     {
-                        lb.Log = "+++++++++++++++++++++ No changes to deploy +++++++++++++++++++++";
+                        lb.Log = $"{lb.LastResult} = {result.LastVersion} \r\n+++++++++++++++++++++ No changes to deploy +++++++++++++++++++++";
                         lb.ExitCode = 0;
                         lb.Error = "";
                         return lb;
