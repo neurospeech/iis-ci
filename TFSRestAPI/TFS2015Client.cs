@@ -56,24 +56,24 @@ namespace TFSRestAPI
                     return;
                 }
 
-                //if (src.Hash == local.Hash)
-                //    return;
+                if (src.Hash == local.Hash)
+                    return;
 
-                //// try to calculate hash..
-                //using (var md5 = MD5.Create())
-                //{
-                //    using (var s = File.OpenRead(filePath))
-                //    {
-                //        var hash = Convert.ToBase64String(md5.ComputeHash(s));
-                //        if (hash == src.Hash)
-                //        {
-                //            local.Hash = src.Hash;
-                //            return;
-                //        }
-                //    }
-                //}
+                // try to calculate hash..
+                using (var md5 = MD5.Create())
+                {
+                    using (var s = File.OpenRead(filePath))
+                    {
+                        var hash = Convert.ToBase64String(md5.ComputeHash(s));
+                        if (hash == src.Hash)
+                        {
+                            local.Hash = src.Hash;
+                            return;
+                        }
+                    }
+                }
 
-                //local.Hash = src.Hash;
+                local.Hash = src.Hash;
 
                 string t = Path.GetTempFileName();
                 await src.DownloadAsync(t);
@@ -107,7 +107,10 @@ namespace TFSRestAPI
                     this.Client = Conn.GetClient<TfvcHttpClient>();
                     List<TfvcItem> files = await Client.GetItemsAsync(config.RootFolder, VersionControlRecursionType.Full);
                     SourceRepository repo = new SourceRepository();
+                    
                     repo.Files.AddRange(files.Where(x => x.DeletionId == 0).Select(x => new TFSWebFileItem(x, Conn, config, Client)));
+
+                    repo.LatestVersion = files.OrderByDescending(x => x.ChangesetVersion).FirstOrDefault().ToString();
                     return repo;
                 }
 
