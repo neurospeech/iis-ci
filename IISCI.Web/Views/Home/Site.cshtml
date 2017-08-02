@@ -82,6 +82,9 @@
             <input atom-label="Username"
                    atom-value="$[data.Username]" />
 
+            <div atom-field-visible="[/^git/i.test($data.SourceType)]">
+                For open access token, leave password blank and just enter token in username
+            </div>
             <input atom-label="Password"
                    type="password"
                    atom-value="$[data.Password]" />

@@ -137,7 +137,7 @@ namespace IISCI.Git
 
         Credentials CredentialsHandler(string url, string usernameFromUrl, SupportedCredentialTypes types)
         {
-            return new UsernamePasswordCredentials { Username = config.Username, Password = config.Password };
+            return new UsernamePasswordCredentials { Username = config.Username, Password = config.Password ?? "" };
         }
 
         public async Task DownloadAsync(BuildConfig config, ISourceItem item, string filePath)
