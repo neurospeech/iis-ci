@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -56,20 +57,52 @@ namespace IISCI.Web.Controllers
             return Content("\"Ok\"");
         }
 
+        public class IISSite
+        {
+            public string Id { get; set; }
+            public long IISID { get; set; }
+            public string Name { get; set; }
+            public IEnumerable<string> Bindings { get; set; }
+            public LastBuild LastBuild { get; set; }
+            public List<IISSite> Children { get; set; }
+            public string Path { get; set; }
+        }
+
         [Authorize]
         public ActionResult Sites()
         {
 
-            var sites = ServerManager.Sites.Select(x => new
+            var sites = ServerManager.Sites.Select(x => new IISSite
             {
                 Id = x.Name,
                 IISID = x.Id,
                 Name = x.Name,
                 Bindings = x.Bindings.Select(y => y.Host),
-                LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(GetBuildConfigModel(x.Name).BuildResult)
-            }).ToList().OrderBy(x=>x.Id);
+                Children = x.Applications.Where(app => app.Path != "/")
+                    .Select(app => new IISSite {
+                        Id = x.Name + app.Path,
+                        IISID = 0,
+                        Path = app.Path,
+                        Bindings = x.Bindings.Select(a=>a.Host + app.Path)
+                    }).ToList()
+            }).ToList();
 
-            return Json( sites, JsonRequestBehavior.AllowGet);
+            var copy = sites;
+            sites = new List<IISSite>();
+
+            foreach (var site in copy) {
+                sites.Add(site);
+                if (site.Children != null)
+                {
+                    sites.AddRange(site.Children);
+                }
+            }
+
+            Parallel.ForEach(sites, site => {
+                site.LastBuild = JsonStorage.ReadFileOrDefault<LastBuild>(GetBuildConfigModel(site.Id).BuildResult);
+            });
+
+            return Json( sites.OrderBy(x=>x.Id), JsonRequestBehavior.AllowGet);
         }
 
         private string GetConfigPath(string id) {
